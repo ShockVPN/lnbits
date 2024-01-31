@@ -20,12 +20,12 @@ class AlbyWallet(Wallet):
     """https://guides.getalby.com/alby-wallet-api/reference/api-reference"""
 
     def __init__(self):
-        endpoint = settings.alby_api_endpoint
+        if not settings.alby_api_endpoint:
+            raise ValueError("cannot initialize AlbyWallet: missing alby_api_endpoint")
+        if not settings.alby_access_token:
+            raise ValueError("cannot initialize AlbyWallet: missing alby_access_token")
 
-        if not endpoint or not settings.alby_access_token:
-            raise Exception("cannot initialize getalby")
-
-        self.endpoint = endpoint[:-1] if endpoint.endswith("/") else endpoint
+        self.endpoint = self.normalize_endpoint(settings.alby_api_endpoint)
         self.auth = {
             "Authorization": "Bearer " + settings.alby_access_token,
             "User-Agent": settings.user_agent,

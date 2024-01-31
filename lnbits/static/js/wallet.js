@@ -113,7 +113,8 @@ new Vue({
         data: {
           request: '',
           amount: 0,
-          comment: ''
+          comment: '',
+          unit: 'sat'
         },
         paymentChecker: null,
         copy: {
@@ -149,7 +150,7 @@ new Vue({
           descending: true,
           rowsNumber: 10
         },
-        filter: null,
+        search: null,
         loading: false
       },
       paymentsCSV: {
@@ -267,7 +268,7 @@ new Vue({
       }
     },
     filteredPayments: function () {
-      var q = this.paymentsTable.filter
+      var q = this.paymentsTable.search
       if (!q || q === '') return this.payments
 
       return LNbits.utils.search(this.payments, q)
@@ -286,12 +287,10 @@ new Vue({
       return this.payments.findIndex(payment => payment.pending) !== -1
     }
   },
-  filters: {
+  methods: {
     msatoshiFormat: function (value) {
       return LNbits.utils.formatSat(value / 1000)
-    }
-  },
-  methods: {
+    },
     paymentTableRowKey: function (row) {
       return row.payment_hash + row.amount
     },
@@ -352,33 +351,6 @@ new Vue({
       this.parse.data.paymentChecker = null
       this.parse.camera.show = false
       this.focusInput('textArea')
-    },
-    updateBalance: function (credit) {
-      LNbits.api
-        .request(
-          'PUT',
-          '/admin/api/v1/topup/',
-          this.g.user.wallets[0].adminkey,
-          {
-            amount: credit,
-            id: this.g.wallet.id
-          }
-        )
-        .then(response => {
-          this.$q.notify({
-            type: 'positive',
-            message:
-              'Success! Added ' +
-              credit +
-              ' sats to ' +
-              this.g.user.wallets[0].id,
-            icon: null
-          })
-          this.balance += parseInt(credit)
-        })
-        .catch(function (error) {
-          LNbits.utils.notifyApiError(error)
-        })
     },
     closeParseDialog: function () {
       setTimeout(() => {
@@ -639,7 +611,8 @@ new Vue({
           this.parse.lnurlpay.description_hash,
           this.parse.data.amount * 1000,
           this.parse.lnurlpay.description.slice(0, 120),
-          this.parse.data.comment
+          this.parse.data.comment,
+          this.parse.data.unit
         )
         .then(response => {
           this.parse.show = false
@@ -776,23 +749,9 @@ new Vue({
         })
     },
     fetchPayments: function (props) {
-      // Props are passed by qasar when pagination or sorting changes
-      if (props) {
-        this.paymentsTable.pagination = props.pagination
-      }
-      let pagination = this.paymentsTable.pagination
-      this.paymentsTable.loading = true
-      const query = {
-        limit: pagination.rowsPerPage,
-        offset: (pagination.page - 1) * pagination.rowsPerPage,
-        sortby: pagination.sortBy ?? 'time',
-        direction: pagination.descending ? 'desc' : 'asc'
-      }
-      if (this.paymentsTable.filter) {
-        query.search = this.paymentsTable.filter
-      }
+      const params = LNbits.utils.prepareFilterQuery(this.paymentsTable, props)
       return LNbits.api
-        .getPayments(this.g.wallet, query)
+        .getPayments(this.g.wallet, params)
         .then(response => {
           this.paymentsTable.loading = false
           this.paymentsTable.pagination.rowsNumber = response.data.total
@@ -832,11 +791,20 @@ new Vue({
     formatFiat(currency, amount) {
       return LNbits.utils.formatCurrency(amount, currency)
     },
+    updateBalanceCallback: function (res) {
+      this.balance += res.value
+    },
     exportCSV: function () {
       // status is important for export but it is not in paymentsTable
       // because it is manually added with payment detail link and icons
       // and would cause duplication in the list
-      LNbits.api.getPayments(this.g.wallet, {}).then(response => {
+      const pagination = this.paymentsTable.pagination
+      const query = {
+        sortby: pagination.sortBy ?? 'time',
+        direction: pagination.descending ? 'desc' : 'asc'
+      }
+      const params = new URLSearchParams(query)
+      LNbits.api.getPayments(this.g.wallet, params).then(response => {
         const payments = response.data.data.map(LNbits.map.payment)
         LNbits.utils.exportCSV(
           this.paymentsCSV.columns,

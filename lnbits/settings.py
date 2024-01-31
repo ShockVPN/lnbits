@@ -347,6 +347,8 @@ class EnvSettings(LNbitsSettings):
     log_rotation: str = Field(default="100 MB")
     log_retention: str = Field(default="3 months")
     server_startup_time: int = Field(default=time())
+    lnbits_extensions_deactivate_all: bool = Field(default=False)
+    cleanup_wallets_days: int = Field(default=90)
 
     @property
     def has_default_extension_path(self) -> bool:
@@ -389,6 +391,7 @@ class TransientSettings(InstalledExtensionsSettings):
     #  - are not read from a file or from the `settings` table
     #  - are not persisted in the `settings` table when the settings are updated
     #  - are cleared on server restart
+    first_install: bool = Field(default=False)
 
     @classmethod
     def readonly_fields(cls):

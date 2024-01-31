@@ -151,11 +151,32 @@ async def get_account(
     user_id: str, conn: Optional[Connection] = None
 ) -> Optional[User]:
     row = await (conn or db).fetchone(
-        "SELECT id, email, username, created_at, updated_at FROM accounts WHERE id = ?",
+        """
+           SELECT id, email, username, created_at, updated_at, extra
+           FROM accounts WHERE id = ?
+        """,
         (user_id,),
     )
 
-    return User(**row) if row else None
+    user = User(**row) if row else None
+    if user and row["extra"]:
+        user.config = UserConfig(**json.loads(row["extra"]))
+    return user
+
+
+async def delete_accounts_no_wallets(
+    time_delta: int,
+    conn: Optional[Connection] = None,
+) -> None:
+    await (conn or db).execute(
+        f"""
+        DELETE FROM accounts
+        WHERE NOT EXISTS (
+            SELECT wallets.id FROM wallets WHERE wallets.user = accounts.id
+        ) AND updated_at < {db.timestamp_placeholder}
+        """,
+        (int(time()) - time_delta,),
+    )
 
 
 async def get_user_password(user_id: str) -> Optional[str]:
@@ -488,6 +509,25 @@ async def delete_wallet(
         WHERE id = ? AND "user" = ?
         """,
         (now, wallet_id, user_id),
+    )
+
+
+async def remove_deleted_wallets(conn: Optional[Connection] = None) -> None:
+    await (conn or db).execute("DELETE FROM wallets WHERE deleted = true")
+
+
+async def delete_unused_wallets(
+    time_delta: int,
+    conn: Optional[Connection] = None,
+) -> None:
+    await (conn or db).execute(
+        f"""
+        DELETE FROM wallets
+        WHERE (
+            SELECT COUNT(*) FROM apipayments WHERE wallet = wallets.id
+        ) = 0 AND updated_at < {db.timestamp_placeholder}
+        """,
+        (int(time()) - time_delta,),
     )
 
 
