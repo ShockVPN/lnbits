@@ -95,11 +95,10 @@ async def extensions_install(
         installed_exts: List["InstallableExtension"] = await get_installed_extensions()
         installed_exts_ids = [e.id for e in installed_exts]
 
-        installable_exts: List[
-            InstallableExtension
-        ] = await InstallableExtension.get_installable_extensions()
+        installable_exts = await InstallableExtension.get_installable_extensions()
+        installable_exts_ids = [e.id for e in installable_exts]
         installable_exts += [
-            e for e in installed_exts if e.id not in installed_exts_ids
+            e for e in installed_exts if e.id not in installable_exts_ids
         ]
 
         for e in installable_exts:
@@ -166,6 +165,9 @@ async def extensions_install(
                 installable_exts,
             )
         )
+
+        # refresh user state. Eg: enabled extensions.
+        user = await get_user(user.id) or user
 
         return template_renderer().TemplateResponse(
             "core/extensions.html",

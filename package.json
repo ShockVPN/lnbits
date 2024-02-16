@@ -81,10 +81,12 @@
       "i18n/cs.js",
       "i18n/sk.js",
       "i18n/kr.js",
+      "i18n/fi.js",
       "js/base.js",
       "js/components.js",
       "js/components/lnbits-funding-sources.js",
       "js/components/extension-settings.js",
+      "js/event-reactions.js",
       "js/bolt11-decoder.js"
     ],
     "css": [

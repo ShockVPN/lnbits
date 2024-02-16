@@ -59,6 +59,7 @@ window.localisation.en = {
   service_fee_tooltip:
     'Service fee charged by the LNbits server admin per outgoing transaction',
   toggle_darkmode: 'Toggle Dark Mode',
+  payment_reactions: 'Payment Reactions',
   view_swagger_docs: 'View LNbits Swagger API docs',
   api_docs: 'API docs',
   api_keys_api_docs: 'API keys and API docs',
@@ -184,6 +185,12 @@ window.localisation.en = {
   allow_access_hint: 'Allow access by IP (will override blocked IPs)',
   enter_ip: 'Enter IP and hit enter',
   rate_limiter: 'Rate Limiter',
+  wallet_limiter: 'Wallet Limiter',
+  wallet_limit_max_withdraw_per_day:
+    'Max daily wallet withdrawal in sats (0 to disable)',
+  wallet_max_ballance: 'Wallet max balance in sats (0 to disable)',
+  wallet_limit_secs_between_trans:
+    'Min secs between transactions per wallet (0 to disable)',
   number_of_requests: 'Number of requests',
   time_unit: 'Time unit',
   minute: 'minute',
@@ -202,6 +209,7 @@ window.localisation.en = {
   account_settings: 'Account Settings',
   signin_with_google: 'Sign in with Google',
   signin_with_github: 'Sign in with GitHub',
+  signin_with_keycloak: 'Sign in with Keycloak',
   username_or_email: 'Username or Email',
   password: 'Password',
   password_config: 'Password Config',

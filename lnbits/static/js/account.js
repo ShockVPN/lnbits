@@ -6,6 +6,12 @@ new Vue({
       user: null,
       hasUsername: false,
       showUserId: false,
+      reactionOptions: [
+        'None',
+        'confettiBothSides',
+        'confettiFireworks',
+        'confettiStars'
+      ],
       tab: 'user',
       passwordData: {
         show: false,
@@ -26,6 +32,9 @@ new Vue({
     toggleDarkMode: function () {
       this.$q.dark.toggle()
       this.$q.localStorage.set('lnbits.darkMode', this.$q.dark.isActive)
+    },
+    reactionChoiceFunc: function () {
+      this.$q.localStorage.set('lnbits.reactions', this.reactionChoice)
     },
     changeColor: function (newValue) {
       document.body.setAttribute('data-theme', newValue)
@@ -54,6 +63,13 @@ new Vue({
       }
     },
     updatePassword: async function () {
+      if (!this.user.username) {
+        this.$q.notify({
+          type: 'warning',
+          message: 'Please set a username first.'
+        })
+        return
+      }
       try {
         const {data} = await LNbits.api.request(
           'PUT',
@@ -61,6 +77,7 @@ new Vue({
           null,
           {
             user_id: this.user.id,
+            username: this.user.username,
             password_old: this.passwordData.oldPassword,
             password: this.passwordData.newPassword,
             password_repeat: this.passwordData.newPasswordRepeat
@@ -77,6 +94,13 @@ new Vue({
       }
     },
     showChangePassword: function () {
+      if (!this.user.username) {
+        this.$q.notify({
+          type: 'warning',
+          message: 'Please set a username first.'
+        })
+        return
+      }
       this.passwordData = {
         show: true,
         oldPassword: null,

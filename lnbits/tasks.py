@@ -14,11 +14,9 @@ from pywebpush import WebPushException, webpush
 from lnbits.core.crud import (
     delete_expired_invoices,
     delete_webpush_subscriptions,
-    get_balance_checks,
     get_payments,
     get_standalone_payment,
 )
-from lnbits.core.services import redeem_lnurl_withdraw
 from lnbits.settings import settings
 from lnbits.wallets import get_wallet_class
 
@@ -60,34 +58,11 @@ async def send_push_promise(a, b) -> None:
     pass
 
 
-class SseListenersDict(dict):
-    """
-    A dict of sse listeners.
-    """
-
-    def __init__(self, name: Optional[str] = None):
-        self.name = name or f"sse_listener_{str(uuid.uuid4())[:8]}"
-
-    def __setitem__(self, key, value):
-        assert isinstance(key, str), f"{key} is not a string"
-        assert isinstance(value, asyncio.Queue), f"{value} is not an asyncio.Queue"
-        logger.trace(f"sse: adding listener {key} to {self.name}. len = {len(self)+1}")
-        return super().__setitem__(key, value)
-
-    def __delitem__(self, key):
-        logger.trace(f"sse: removing listener from {self.name}. len = {len(self)-1}")
-        return super().__delitem__(key)
-
-    _RaiseKeyError = object()  # singleton for no-default behavior
-
-    def pop(self, key, v=_RaiseKeyError) -> None:
-        logger.trace(f"sse: removing listener from {self.name}. len = {len(self)-1}")
-        return super().pop(key)
+invoice_listeners: Dict[str, asyncio.Queue] = {}
 
 
-invoice_listeners: Dict[str, asyncio.Queue] = SseListenersDict("invoice_listeners")
-
-
+# TODO: name should not be optional
+# some extensions still dont use a name, but they should
 def register_invoice_listener(send_chan: asyncio.Queue, name: Optional[str] = None):
     """
     A method intended for extensions (and core/tasks.py) to call when they want to be
@@ -184,14 +159,6 @@ async def check_pending_payments():
         incoming = False
 
         await asyncio.sleep(60 * 30)  # every 30 minutes
-
-
-async def perform_balance_checks():
-    while True:
-        for bc in await get_balance_checks():
-            await redeem_lnurl_withdraw(bc.wallet, bc.url)
-
-        await asyncio.sleep(60 * 60 * 6)  # every 6 hours
 
 
 async def invoice_callback_dispatcher(checking_id: str):
