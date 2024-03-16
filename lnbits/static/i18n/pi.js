@@ -36,7 +36,7 @@ window.localisation.pi = {
   name_your_wallet: 'Name yer %{name} treasure chest',
   paste_invoice_label: 'Paste a booty, payment request or lnurl code, matey!',
   lnbits_description:
-    'Arr, easy to set up and lightweight, LNbits can run on any lightning-network funding source, currently supporting LND, Core Lightning, OpenNode, Alby, LNPay and even LNbits itself! Ye can run LNbits for yourself, or easily offer a custodian solution for others. Each chest has its own API keys and there be no limit to the number of chests ye can make. Being able to partition booty makes LNbits a useful tool for money management and as a development tool. Arr, extensions add extra functionality to LNbits so ye can experiment with a range of cutting-edge technologies on the lightning network. We have made developing extensions as easy as possible, and as a free and open-source project, we encourage scallywags to develop and submit their own.',
+    'Arr, easy to set up and lightweight, LNbits can run on any lightning-network funding source, currently supporting LND, Core Lightning, OpenNode, Alby, ZBD, LNPay and even LNbits itself! Ye can run LNbits for yourself, or easily offer a custodian solution for others. Each chest has its own API keys and there be no limit to the number of chests ye can make. Being able to partition booty makes LNbits a useful tool for money management and as a development tool. Arr, extensions add extra functionality to LNbits so ye can experiment with a range of cutting-edge technologies on the lightning network. We have made developing extensions as easy as possible, and as a free and open-source project, we encourage scallywags to develop and submit their own.',
   export_to_phone: 'Export to Phone with QR Code, me hearties',
   export_to_phone_desc:
     'This QR code contains yer chest URL with full access. Ye can scan it from yer phone to open yer chest from there, arr!',
@@ -61,9 +61,10 @@ window.localisation.pi = {
   service_fee_tooltip:
     "Service fee charged by the LNbits server admin per goin' transaction",
   toggle_darkmode: 'Toggle Dark Mode, arr!',
+  payment_reactions: 'Payment Reactions',
   view_swagger_docs: 'View LNbits Swagger API docs and learn the secrets',
   api_docs: 'API docs for the scallywags',
-  api_keys_api_docs: 'API keys and API docs',
+  api_keys_api_docs: 'Node URL, API keys and API docs',
   lnbits_version: 'LNbits version, arr!',
   runs_on: 'Runs on, matey',
   credit_hint: 'Press Enter to credit account and make it richer',
@@ -189,6 +190,12 @@ window.localisation.pi = {
   allow_access_hint: 'Grant permission by IP (will override barred IPs)',
   enter_ip: 'Enter IP and hit enter',
   rate_limiter: 'Rate Limiter',
+  wallet_limiter: 'Pouch Limitar',
+  wallet_limit_max_withdraw_per_day:
+    'Max daily wallet withdrawal in sats (0 ter disable)',
+  wallet_max_ballance: 'Purse max heaviness in sats (0 fer scuttle)',
+  wallet_limit_secs_between_trans:
+    "Min secs 'tween transactions per wallet (0 to disable)",
   number_of_requests: "Number o' requests",
   time_unit: "time bein'",
   minute: 'minnit',
@@ -207,6 +214,7 @@ window.localisation.pi = {
   account_settings: "Account Settin's",
   signin_with_google: "Sign in wit' Google",
   signin_with_github: "Sign in wit' GitHub",
+  signin_with_keycloak: "Sign in wit' Keycloak",
   username_or_email: 'Usarrrname or Email',
   password: 'Passwarrd',
   password_config: 'Passwarrd Config',
@@ -229,5 +237,8 @@ window.localisation.pi = {
   auth_provider: 'Auth Provider becometh Auth Provider, ye see?',
   my_account: 'Me Arrrccount',
   back: 'Return',
-  logout: 'Log out yer session'
+  logout: 'Log out yer session',
+  look_and_feel: 'Look and Feel',
+  language: 'Langwidge',
+  color_scheme: 'Colour Scheme'
 }

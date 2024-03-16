@@ -68,6 +68,16 @@ class InstalledExtensionsSettings(LNbitsSettings):
     # list of redirects that extensions want to perform
     lnbits_extensions_redirects: List[Any] = Field(default=[])
 
+    def extension_upgrade_path(self, ext_id: str) -> Optional[str]:
+        return next(
+            (e for e in self.lnbits_upgraded_extensions if e.endswith(f"/{ext_id}")),
+            None,
+        )
+
+    def extension_upgrade_hash(self, ext_id: str) -> Optional[str]:
+        path = settings.extension_upgrade_path(ext_id)
+        return path.split("/")[0] if path else None
+
 
 class ThemesSettings(LNbitsSettings):
     lnbits_site_title: str = Field(default="LNbits")
@@ -196,6 +206,11 @@ class LnPayFundingSource(LNbitsSettings):
     lnpay_admin_key: Optional[str] = Field(default=None)
 
 
+class ZBDFundingSource(LNbitsSettings):
+    zbd_api_endpoint: Optional[str] = Field(default="https://api.zebedee.io/v0/")
+    zbd_api_key: Optional[str] = Field(default=None)
+
+
 class AlbyFundingSource(LNbitsSettings):
     alby_api_endpoint: Optional[str] = Field(default="https://api.getalby.com/")
     alby_access_token: Optional[str] = Field(default=None)
@@ -235,6 +250,7 @@ class FundingSourcesSettings(
     LndGrpcFundingSource,
     LnPayFundingSource,
     AlbyFundingSource,
+    ZBDFundingSource,
     OpenNodeFundingSource,
     SparkFundingSource,
     LnTipsFundingSource,
@@ -389,6 +405,7 @@ class SuperUserSettings(LNbitsSettings):
             "LnTipsWallet",
             "LNPayWallet",
             "AlbyWallet",
+            "ZBDWallet",
             "LNbitsWallet",
             "OpenNodeWallet",
         ]

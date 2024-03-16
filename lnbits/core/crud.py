@@ -322,6 +322,7 @@ async def add_installed_extension(
             dict(ext.installed_release) if ext.installed_release else None
         ),
         "dependencies": ext.dependencies,
+        "payments": [dict(p) for p in ext.payments] if ext.payments else None,
     }
 
     version = ext.installed_release.version if ext.installed_release else ""
@@ -553,7 +554,8 @@ async def get_wallet_for_key(
     row = await (conn or db).fetchone(
         """
         SELECT *, COALESCE((SELECT balance FROM balances WHERE wallet = wallets.id), 0)
-        AS balance_msat FROM wallets WHERE adminkey = ? OR inkey = ?
+        AS balance_msat FROM wallets
+        WHERE (adminkey = ? OR inkey = ?) AND deleted = false
         """,
         (key, key),
     )
@@ -601,6 +603,7 @@ async def get_standalone_payment(
         SELECT *
         FROM apipayments
         WHERE {clause}
+        ORDER BY amount
         LIMIT 1
         """,
         tuple(values),
@@ -1010,6 +1013,16 @@ async def check_internal_pending(
         return True
     else:
         return row["pending"]
+
+
+async def mark_webhook_sent(payment_hash: str, status: int) -> None:
+    await db.execute(
+        """
+        UPDATE apipayments SET webhook_status = ?
+        WHERE hash = ?
+        """,
+        (status, payment_hash),
+    )
 
 
 # balance_check

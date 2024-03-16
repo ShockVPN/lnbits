@@ -61,7 +61,6 @@ from .tasks import (
     check_pending_payments,
     internal_invoice_listener,
     invoice_listener,
-    webhook_handler,
 )
 
 
@@ -195,7 +194,7 @@ async def check_installed_extensions(app: FastAPI):
 
     for ext in installed_extensions:
         try:
-            installed = check_installed_extension_files(ext)
+            installed = await check_installed_extension_files(ext)
             if not installed:
                 await restore_installed_extension(app, ext)
                 logger.info(
@@ -253,14 +252,14 @@ async def build_all_installed_extensions_list(
     ]
 
 
-def check_installed_extension_files(ext: InstallableExtension) -> bool:
+async def check_installed_extension_files(ext: InstallableExtension) -> bool:
     if ext.has_installed_version:
         return True
 
     zip_files = glob.glob(os.path.join(settings.lnbits_data_folder, "zips", "*.zip"))
 
     if f"./{str(ext.zip_path)}" not in zip_files:
-        ext.download_archive()
+        await ext.download_archive()
     ext.extract_archive()
 
     return False
@@ -465,10 +464,6 @@ def get_db_vendor_name():
 
 
 def register_async_tasks(app):
-    @app.route("/wallet/webhook")
-    async def webhook_listener():
-        return await webhook_handler()
-
     @app.on_event("startup")
     async def listeners():
         create_permanent_task(check_pending_payments)
@@ -540,9 +535,7 @@ def register_exception_handlers(app: FastAPI):
                 response = RedirectResponse("/")
                 response.delete_cookie("cookie_access_token")
                 response.delete_cookie("is_lnbits_user_authorized")
-                response.set_cookie(
-                    "is_access_token_expired", "true", samesite="none", secure=True
-                )
+                response.set_cookie("is_access_token_expired", "true")
                 return response
 
             return template_renderer().TemplateResponse(

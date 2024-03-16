@@ -32,6 +32,7 @@ from lnbits.core.helpers import (
     stop_extension_background_work,
 )
 from lnbits.core.models import (
+    BaseWallet,
     ConversionData,
     CreateInvoice,
     CreateLnurl,
@@ -51,6 +52,7 @@ from lnbits.decorators import (
     WalletTypeInfo,
     check_access_token,
     check_admin,
+    check_user_exists,
     get_key_type,
     parse_filters,
     require_admin_key,
@@ -62,6 +64,7 @@ from lnbits.extension_manager import (
     ExtensionRelease,
     InstallableExtension,
     fetch_github_release_config,
+    fetch_release_payment_info,
     get_valid_extensions,
 )
 from lnbits.helpers import generate_filter_params_openapi, url_for
@@ -83,6 +86,7 @@ from ..crud import (
     delete_wallet,
     drop_extension_db,
     get_dbversions,
+    get_installed_extension,
     get_payments,
     get_payments_history,
     get_payments_paginated,
@@ -123,6 +127,15 @@ async def api_wallet(wallet: WalletTypeInfo = Depends(get_key_type)):
         }
     else:
         return {"name": wallet.wallet.name, "balance": wallet.wallet.balance_msat}
+
+
+@api_router.get(
+    "/api/v1/wallets",
+    name="Wallets",
+    description="Get basic info for all of user's wallets.",
+)
+async def api_wallets(user: User = Depends(check_user_exists)) -> List[BaseWallet]:
+    return [BaseWallet(**w.dict()) for w in user.wallets]
 
 
 @api_router.put("/api/v1/wallet/{new_name}")
@@ -526,10 +539,7 @@ async def api_payment(payment_hash, X_Api_Key: Optional[str] = Header(None)):
     # We use X_Api_Key here because we want this call to work with and without keys
     # If a valid key is given, we also return the field "details", otherwise not
     wallet = await get_wallet_for_key(X_Api_Key) if isinstance(X_Api_Key, str) else None
-    wallet = wallet if wallet and not wallet.deleted else None
-    # we have to specify the wallet id here, because postgres and sqlite return
-    # internal payments in different order and get_standalone_payment otherwise
-    # just fetches the first one, causing unpredictable results
+
     payment = await get_standalone_payment(
         payment_hash, wallet_id=wallet.id if wallet else None
     )
@@ -796,7 +806,7 @@ async def api_install_extension(
     access_token: Optional[str] = Depends(check_access_token),
 ):
     release = await InstallableExtension.get_extension_release(
-        data.ext_id, data.source_repo, data.archive
+        data.ext_id, data.source_repo, data.archive, data.version
     )
     if not release:
         raise HTTPException(
@@ -808,13 +818,17 @@ async def api_install_extension(
             status_code=HTTPStatus.BAD_REQUEST, detail="Incompatible extension version"
         )
 
+    release.payment_hash = data.payment_hash
     ext_info = InstallableExtension(
         id=data.ext_id, name=data.ext_id, installed_release=release, icon=release.icon
     )
 
-    ext_info.download_archive()
-
     try:
+        installed_ext = await get_installed_extension(data.ext_id)
+        ext_info.payments = installed_ext.payments if installed_ext else []
+
+        await ext_info.download_archive()
+
         ext_info.extract_archive()
 
         extension = Extension.from_installable_ext(ext_info)
@@ -824,8 +838,9 @@ async def api_install_extension(
 
         await add_installed_extension(ext_info)
 
-        # call stop while the old routes are still active
-        await stop_extension_background_work(data.ext_id, user.id, access_token)
+        if extension.is_upgrade_extension:
+            # call stop while the old routes are still active
+            await stop_extension_background_work(data.ext_id, user.id, access_token)
 
         if data.ext_id not in settings.lnbits_deactivated_extensions:
             settings.lnbits_deactivated_extensions += [data.ext_id]
@@ -837,7 +852,8 @@ async def api_install_extension(
             ext_info.nofiy_upgrade()
 
         return extension
-
+    except AssertionError as e:
+        raise HTTPException(HTTPStatus.BAD_REQUEST, str(e))
     except Exception as ex:
         logger.warning(ex)
         ext_info.clean_extension_files()
@@ -902,9 +918,18 @@ async def api_uninstall_extension(
 )
 async def get_extension_releases(ext_id: str):
     try:
-        extension_releases: List[
-            ExtensionRelease
-        ] = await InstallableExtension.get_extension_releases(ext_id)
+        extension_releases: List[ExtensionRelease] = (
+            await InstallableExtension.get_extension_releases(ext_id)
+        )
+
+        installed_ext = await get_installed_extension(ext_id)
+        if not installed_ext:
+            return extension_releases
+
+        for release in extension_releases:
+            payment_info = installed_ext.find_existing_payment(release.pay_link)
+            if payment_info:
+                release.paid_sats = payment_info.amount
 
         return extension_releases
 
@@ -912,6 +937,40 @@ async def get_extension_releases(ext_id: str):
         raise HTTPException(
             status_code=HTTPStatus.INTERNAL_SERVER_ERROR, detail=str(ex)
         )
+
+
+@api_router.put("/api/v1/extension/invoice", dependencies=[Depends(check_admin)])
+async def get_extension_invoice(data: CreateExtension):
+    try:
+        assert data.cost_sats, "A non-zero amount must be specified"
+        release = await InstallableExtension.get_extension_release(
+            data.ext_id, data.source_repo, data.archive, data.version
+        )
+        assert release, "Release not found"
+        assert release.pay_link, "Pay link not found for release"
+
+        payment_info = await fetch_release_payment_info(
+            release.pay_link, data.cost_sats
+        )
+        assert payment_info and payment_info.payment_request, "Cannot request invoice"
+        invoice = bolt11.decode(payment_info.payment_request)
+
+        assert invoice.amount_msat is not None, "Invoic amount is missing"
+        invoice_amount = int(invoice.amount_msat / 1000)
+        assert (
+            invoice_amount == data.cost_sats
+        ), f"Wrong invoice amount: {invoice_amount}."
+        assert (
+            payment_info.payment_hash == invoice.payment_hash
+        ), "Wroong invoice payment hash"
+
+        return payment_info
+
+    except AssertionError as e:
+        raise HTTPException(HTTPStatus.BAD_REQUEST, str(e))
+    except Exception as ex:
+        logger.warning(ex)
+        raise HTTPException(HTTPStatus.INTERNAL_SERVER_ERROR, "Cannot request invoice")
 
 
 @api_router.get(

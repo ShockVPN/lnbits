@@ -35,7 +35,7 @@ class PaymentStatus(NamedTuple):
 
     @property
     def pending(self) -> bool:
-        return self.paid is not True
+        return self.paid is None
 
     @property
     def failed(self) -> bool:
@@ -50,6 +50,18 @@ class PaymentStatus(NamedTuple):
             return "still pending"
         else:
             return "unknown (should never happen)"
+
+
+class PaymentSuccessStatus(PaymentStatus):
+    paid = True
+
+
+class PaymentFailedStatus(PaymentStatus):
+    paid = False
+
+
+class PaymentPendingStatus(PaymentStatus):
+    paid = None
 
 
 class Wallet(ABC):

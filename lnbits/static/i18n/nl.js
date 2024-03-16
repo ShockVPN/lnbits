@@ -37,7 +37,7 @@ window.localisation.nl = {
   name_your_wallet: 'Geef je %{name} portemonnee een naam',
   paste_invoice_label: 'Plak een factuur, betalingsverzoek of lnurl-code*',
   lnbits_description:
-    'Gemakkelijk in te stellen en lichtgewicht, LNbits kan op elke lightning-netwerkfinancieringsbron draaien, ondersteunt op dit moment LND, Core Lightning, OpenNode, Alby, LNPay en zelfs LNbits zelf! U kunt LNbits voor uzelf laten draaien of gemakkelijk een bewaardersoplossing voor anderen bieden. Elke portemonnee heeft zijn eigen API-sleutels en er is geen limiet aan het aantal portemonnees dat u kunt maken. Het kunnen partitioneren van fondsen maakt LNbits een nuttige tool voor geldbeheer en als ontwikkelingstool. Extensies voegen extra functionaliteit toe aan LNbits, zodat u kunt experimenteren met een reeks toonaangevende technologieën op het bliksemschichtnetwerk. We hebben het ontwikkelen van extensies zo eenvoudig mogelijk gemaakt en als een gratis en opensource-project moedigen we mensen aan om hun eigen ontwikkelingen in te dienen.',
+    'Gemakkelijk in te stellen en lichtgewicht, LNbits kan op elke lightning-netwerkfinancieringsbron draaien, ondersteunt op dit moment LND, Core Lightning, OpenNode, Alby, ZBD, LNPay en zelfs LNbits zelf! U kunt LNbits voor uzelf laten draaien of gemakkelijk een bewaardersoplossing voor anderen bieden. Elke portemonnee heeft zijn eigen API-sleutels en er is geen limiet aan het aantal portemonnees dat u kunt maken. Het kunnen partitioneren van fondsen maakt LNbits een nuttige tool voor geldbeheer en als ontwikkelingstool. Extensies voegen extra functionaliteit toe aan LNbits, zodat u kunt experimenteren met een reeks toonaangevende technologieën op het bliksemschichtnetwerk. We hebben het ontwikkelen van extensies zo eenvoudig mogelijk gemaakt en als een gratis en opensource-project moedigen we mensen aan om hun eigen ontwikkelingen in te dienen.',
   export_to_phone: 'Exporteren naar telefoon met QR-code',
   export_to_phone_desc:
     'Deze QR-code bevat uw portemonnee-URL met volledige toegang. U kunt het vanaf uw telefoon scannen om uw portemonnee van daaruit te openen.',
@@ -63,9 +63,10 @@ window.localisation.nl = {
   service_fee_tooltip:
     'Transactiekosten in rekening gebracht door de LNbits serverbeheerder per uitgaande transactie',
   toggle_darkmode: 'Donkere modus aan/uit',
+  payment_reactions: 'Betalingsreacties',
   view_swagger_docs: 'Bekijk LNbits Swagger API-documentatie',
   api_docs: 'API-documentatie',
-  api_keys_api_docs: 'API-sleutels en API-documentatie',
+  api_keys_api_docs: 'Node URL, API-sleutels en API-documentatie',
   lnbits_version: 'LNbits-versie',
   runs_on: 'Draait op',
   credit_hint: 'Druk op Enter om de rekening te crediteren',
@@ -191,6 +192,13 @@ window.localisation.nl = {
     "Toegang verlenen op basis van IP (zal geblokkeerde IP's overschrijven)",
   enter_ip: 'Voer IP in en druk op enter',
   rate_limiter: 'Snelheidsbegrenzer',
+  wallet_limiter: 'Portemonnee Limietsteller',
+  wallet_limit_max_withdraw_per_day:
+    'Maximale dagelijkse opname van wallet in sats (0 om uit te schakelen)',
+  wallet_max_ballance:
+    'Maximale portefeuillesaldo in sats (0 om uit te schakelen)',
+  wallet_limit_secs_between_trans:
+    'Min seconden tussen transacties per portemonnee (0 om uit te schakelen)',
   number_of_requests: 'Aantal verzoeken',
   time_unit: 'Tijdeenheid',
   minute: 'minuut',
@@ -209,6 +217,7 @@ window.localisation.nl = {
   account_settings: 'Accountinstellingen',
   signin_with_google: 'Inloggen met Google',
   signin_with_github: 'Inloggen met GitHub',
+  signin_with_keycloak: 'Inloggen met Keycloak',
   username_or_email: 'Gebruikersnaam of e-mail',
   password: 'Wachtwoord',
   password_config: 'Wachtwoordconfiguratie',
@@ -231,5 +240,8 @@ window.localisation.nl = {
   auth_provider: 'Auth Provider',
   my_account: 'Mijn Account',
   back: 'Terug',
-  logout: 'Afmelden'
+  logout: 'Afmelden',
+  look_and_feel: 'Uiterlijk en gedrag',
+  language: 'Taal',
+  color_scheme: 'Kleurenschema'
 }

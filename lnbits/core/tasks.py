@@ -8,8 +8,8 @@ from lnbits.core.crud import (
     get_balance_notify,
     get_wallet,
     get_webpush_subscriptions_for_user,
+    mark_webhook_sent,
 )
-from lnbits.core.db import db
 from lnbits.core.models import Payment
 from lnbits.core.services import (
     get_balance_delta,
@@ -51,7 +51,7 @@ async def killswitch_task():
                                 "Switching to VoidWallet. Killswitch triggered."
                             )
                             await switch_to_voidwallet()
-                except (httpx.ConnectError, httpx.RequestError):
+                except (httpx.RequestError, httpx.HTTPStatusError):
                     logger.error(
                         "Cannot fetch lnbits status manifest."
                         f" {settings.lnbits_status_manifest}"
@@ -121,9 +121,20 @@ async def wait_for_paid_invoices(invoice_paid_queue: asyncio.Queue):
             async with httpx.AsyncClient(headers=headers) as client:
                 try:
                     r = await client.post(url, timeout=4)
-                    await mark_webhook_sent(payment, r.status_code)
-                except (httpx.ConnectError, httpx.RequestError):
-                    pass
+                    r.raise_for_status()
+                    await mark_webhook_sent(payment.payment_hash, r.status_code)
+                except httpx.HTTPStatusError as exc:
+                    status_code = exc.response.status_code
+                    await mark_webhook_sent(payment.payment_hash, status_code)
+                    logger.warning(
+                        f"balance_notify returned a bad status_code: {status_code} "
+                        f"while requesting {exc.request.url!r}."
+                    )
+                    logger.warning(exc)
+                except httpx.RequestError as exc:
+                    await mark_webhook_sent(payment.payment_hash, -1)
+                    logger.warning(f"Could not send balance_notify to {url}")
+                    logger.warning(exc)
 
         await send_payment_push_notification(payment)
 
@@ -148,26 +159,24 @@ async def dispatch_webhook(payment: Payment):
     logger.debug("sending webhook", payment.webhook)
 
     if not payment.webhook:
-        return await mark_webhook_sent(payment, -1)
+        return await mark_webhook_sent(payment.payment_hash, -1)
 
     headers = {"User-Agent": settings.user_agent}
     async with httpx.AsyncClient(headers=headers) as client:
         data = payment.dict()
         try:
             r = await client.post(payment.webhook, json=data, timeout=40)
-            await mark_webhook_sent(payment, r.status_code)
-        except (httpx.ConnectError, httpx.RequestError):
-            await mark_webhook_sent(payment, -1)
-
-
-async def mark_webhook_sent(payment: Payment, status: int) -> None:
-    await db.execute(
-        """
-        UPDATE apipayments SET webhook_status = ?
-        WHERE hash = ?
-        """,
-        (status, payment.payment_hash),
-    )
+            r.raise_for_status()
+            await mark_webhook_sent(payment.payment_hash, r.status_code)
+        except httpx.HTTPStatusError as exc:
+            await mark_webhook_sent(payment.payment_hash, exc.response.status_code)
+            logger.warning(
+                f"webhook returned a bad status_code: {exc.response.status_code} "
+                f"while requesting {exc.request.url!r}."
+            )
+        except httpx.RequestError:
+            await mark_webhook_sent(payment.payment_hash, -1)
+            logger.warning(f"Could not send webhook to {payment.webhook}")
 
 
 async def send_payment_push_notification(payment: Payment):
