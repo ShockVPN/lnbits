@@ -8,14 +8,11 @@ from urllib.parse import urlparse
 
 from fastapi import APIRouter, Depends
 from fastapi.responses import FileResponse
-from starlette.exceptions import HTTPException
 
-from lnbits.core.crud import get_wallet
-from lnbits.core.models import CreateTopup, User
+from lnbits.core.models import User
 from lnbits.core.services import (
     get_balance_delta,
     update_cached_settings,
-    update_wallet_balance,
 )
 from lnbits.core.tasks import api_invoice_listeners
 from lnbits.decorators import check_admin, check_super_user
@@ -26,32 +23,21 @@ from lnbits.tasks import invoice_listeners
 from .. import core_app_extra
 from ..crud import delete_admin_settings, get_admin_settings, update_admin_settings
 
-admin_router = APIRouter()
+admin_router = APIRouter(tags=["Admin UI"], prefix="/admin")
 
 
 @admin_router.get(
-    "/admin/api/v1/audit",
+    "/api/v1/audit",
     name="Audit",
     description="show the current balance of the node and the LNbits database",
     dependencies=[Depends(check_admin)],
 )
 async def api_auditor():
-    try:
-        delta, node_balance, total_balance = await get_balance_delta()
-        return {
-            "delta_msats": int(delta),
-            "node_balance_msats": int(node_balance),
-            "lnbits_balance_msats": int(total_balance),
-        }
-    except Exception:
-        raise HTTPException(
-            status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
-            detail="Could not audit balance.",
-        )
+    return await get_balance_delta()
 
 
 @admin_router.get(
-    "/admin/api/v1/monitor",
+    "/api/v1/monitor",
     name="Monitor",
     description="show the current listeners and other monitoring data",
     dependencies=[Depends(check_admin)],
@@ -63,7 +49,7 @@ async def api_monitor():
     }
 
 
-@admin_router.get("/admin/api/v1/settings/", response_model=Optional[AdminSettings])
+@admin_router.get("/api/v1/settings", response_model=Optional[AdminSettings])
 async def api_get_settings(
     user: User = Depends(check_admin),
 ) -> Optional[AdminSettings]:
@@ -72,7 +58,7 @@ async def api_get_settings(
 
 
 @admin_router.put(
-    "/admin/api/v1/settings/",
+    "/api/v1/settings",
     status_code=HTTPStatus.OK,
 )
 async def api_update_settings(data: UpdateSettings, user: User = Depends(check_admin)):
@@ -85,7 +71,7 @@ async def api_update_settings(data: UpdateSettings, user: User = Depends(check_a
 
 
 @admin_router.delete(
-    "/admin/api/v1/settings/",
+    "/api/v1/settings",
     status_code=HTTPStatus.OK,
     dependencies=[Depends(check_super_user)],
 )
@@ -95,7 +81,7 @@ async def api_delete_settings() -> None:
 
 
 @admin_router.get(
-    "/admin/api/v1/restart/",
+    "/api/v1/restart",
     status_code=HTTPStatus.OK,
     dependencies=[Depends(check_super_user)],
 )
@@ -104,32 +90,8 @@ async def api_restart_server() -> dict[str, str]:
     return {"status": "Success"}
 
 
-@admin_router.put(
-    "/admin/api/v1/topup/",
-    name="Topup",
-    status_code=HTTPStatus.OK,
-    dependencies=[Depends(check_super_user)],
-)
-async def api_topup_balance(data: CreateTopup) -> dict[str, str]:
-    try:
-        await get_wallet(data.id)
-    except Exception:
-        raise HTTPException(
-            status_code=HTTPStatus.FORBIDDEN, detail="wallet does not exist."
-        )
-
-    if settings.lnbits_backend_wallet_class == "VoidWallet":
-        raise HTTPException(
-            status_code=HTTPStatus.FORBIDDEN, detail="VoidWallet active"
-        )
-
-    await update_wallet_balance(wallet_id=data.id, amount=int(data.amount))
-
-    return {"status": "Success"}
-
-
 @admin_router.get(
-    "/admin/api/v1/backup/",
+    "/api/v1/backup",
     status_code=HTTPStatus.OK,
     dependencies=[Depends(check_super_user)],
     response_class=FileResponse,

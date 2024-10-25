@@ -9,6 +9,8 @@ window.localisation.nl = {
   transactions: 'Transacties',
   dashboard: 'Dashboard',
   node: 'Knooppunt',
+  export_users: 'Gebruikers exporteren',
+  no_users: 'Geen gebruikers gevonden',
   total_capacity: 'Totale capaciteit',
   avg_channel_size: 'Gem. Kanaalgrootte',
   biggest_channel_size: 'Grootste Kanaalgrootte',
@@ -34,10 +36,12 @@ window.localisation.nl = {
   reset_defaults_tooltip:
     'Wis alle instellingen en herstel de standaardinstellingen.',
   download_backup: 'Databaseback-up downloaden',
-  name_your_wallet: 'Geef je %{name} portemonnee een naam',
+  name_your_wallet: 'Geef je {name} portemonnee een naam',
+  wallet_topup_ok:
+    'Succes met het aanmaken van virtuele fondsen ({amount} sats). Betalingen zijn afhankelijk van de werkelijke fondsen op de financieringsbron.',
   paste_invoice_label: 'Plak een factuur, betalingsverzoek of lnurl-code*',
   lnbits_description:
-    'Gemakkelijk in te stellen en lichtgewicht, LNbits kan op elke lightning-netwerkfinancieringsbron draaien, ondersteunt op dit moment LND, Core Lightning, OpenNode, Alby, ZBD, LNPay en zelfs LNbits zelf! U kunt LNbits voor uzelf laten draaien of gemakkelijk een bewaardersoplossing voor anderen bieden. Elke portemonnee heeft zijn eigen API-sleutels en er is geen limiet aan het aantal portemonnees dat u kunt maken. Het kunnen partitioneren van fondsen maakt LNbits een nuttige tool voor geldbeheer en als ontwikkelingstool. Extensies voegen extra functionaliteit toe aan LNbits, zodat u kunt experimenteren met een reeks toonaangevende technologieën op het bliksemschichtnetwerk. We hebben het ontwikkelen van extensies zo eenvoudig mogelijk gemaakt en als een gratis en opensource-project moedigen we mensen aan om hun eigen ontwikkelingen in te dienen.',
+    'Gemakkelijk in te stellen en lichtgewicht, LNbits kan op elke lightning-netwerkfinancieringsbron draaien en zelfs LNbits zelf! U kunt LNbits voor uzelf laten draaien of gemakkelijk een bewaardersoplossing voor anderen bieden. Elke portemonnee heeft zijn eigen API-sleutels en er is geen limiet aan het aantal portemonnees dat u kunt maken. Het kunnen partitioneren van fondsen maakt LNbits een nuttige tool voor geldbeheer en als ontwikkelingstool. Extensies voegen extra functionaliteit toe aan LNbits, zodat u kunt experimenteren met een reeks toonaangevende technologieën op het bliksemschichtnetwerk. We hebben het ontwikkelen van extensies zo eenvoudig mogelijk gemaakt en als een gratis en opensource-project moedigen we mensen aan om hun eigen ontwikkelingen in te dienen.',
   export_to_phone: 'Exporteren naar telefoon met QR-code',
   export_to_phone_desc:
     'Deze QR-code bevat uw portemonnee-URL met volledige toegang. U kunt het vanaf uw telefoon scannen om uw portemonnee van daaruit te openen.',
@@ -56,10 +60,9 @@ window.localisation.nl = {
   view_github: 'Bekijken op GitHub',
   voidwallet_active: 'VoidWallet is actief! Betalingen uitgeschakeld',
   use_with_caution:
-    'GEBRUIK MET VOORZICHTIGHEID - %{name} portemonnee is nog in BETA',
-  service_fee: 'Servicekosten: %{amount} % per transactie',
-  service_fee_max:
-    'Servicekosten: %{amount} % per transactie (max %{max} sats)',
+    'GEBRUIK MET VOORZICHTIGHEID - {name} portemonnee is nog in BETA',
+  service_fee: 'Servicekosten: {amount} % per transactie',
+  service_fee_max: 'Servicekosten: {amount} % per transactie (max {max} sats)',
   service_fee_tooltip:
     'Transactiekosten in rekening gebracht door de LNbits serverbeheerder per uitgaande transactie',
   toggle_darkmode: 'Donkere modus aan/uit',
@@ -70,7 +73,7 @@ window.localisation.nl = {
   lnbits_version: 'LNbits-versie',
   runs_on: 'Draait op',
   credit_hint: 'Druk op Enter om de rekening te crediteren',
-  credit_label: '%{denomination} te crediteren',
+  credit_label: '{denomination} te crediteren',
   paste: 'Plakken',
   paste_from_clipboard: 'Plakken van klembord',
   paste_request: 'Verzoek plakken',
@@ -101,6 +104,7 @@ window.localisation.nl = {
     'Dit is een LNURL-withdraw QR-code om alles uit deze portemonnee te halen. Deel deze code niet met anderen. Het is compatibel met balanceCheck en balanceNotify zodat jouw portemonnee continu geld kan blijven opnemen vanaf hier na de eerste opname.',
   i_understand: 'Ik begrijp het',
   copy_wallet_url: 'Kopieer portemonnee-URL',
+  disclaimer_dialog_title: 'Belangrijk!',
   disclaimer_dialog:
     'Inlogfunctionaliteit wordt uitgebracht in een toekomstige update. Zorg er nu voor dat je deze pagina als favoriet markeert om in de toekomst toegang te krijgen tot je portemonnee! Deze service is in BETA en we zijn niet verantwoordelijk voor mensen die de toegang tot hun fondsen verliezen.',
   no_transactions: 'Er zijn nog geen transacties gedaan',
@@ -151,8 +155,8 @@ window.localisation.nl = {
   expiry: 'Vervaldatum',
   webhook: 'Webhook',
   payment_proof: 'Betalingsbewijs',
-  update_available: 'Update %{version} beschikbaar!',
-  latest_update: 'U bent op de nieuwste versie %{version}.',
+  update_available: 'Update {version} beschikbaar!',
+  latest_update: 'U bent op de nieuwste versie {version}.',
   notifications: 'Meldingen',
   no_notifications: 'Geen meldingen',
   notifications_disabled: 'LNbits-statusmeldingen zijn uitgeschakeld.',
@@ -164,7 +168,7 @@ window.localisation.nl = {
     'Indien ingeschakeld, zal het uw financieringsbron automatisch wijzigen naar VoidWallet als LNbits een killswitch-signaal verzendt. U zult het na een update handmatig moeten inschakelen.',
   killswitch_interval: 'Uitschakelschakelaar-interval',
   killswitch_interval_desc:
-    'Hoe vaak de achtergrondtaak moet controleren op het LNBits killswitch signaal van de statusbron (in minuten).',
+    'Hoe vaak de achtergrondtaak moet controleren op het LNbits killswitch signaal van de statusbron (in minuten).',
   enable_watchdog: 'Inschakelen Watchdog',
   enable_watchdog_desc:
     'Indien ingeschakeld, wordt uw betaalbron automatisch gewijzigd naar VoidWallet als uw saldo lager is dan het saldo van LNbits. U zult dit na een update handmatig moeten inschakelen.',
@@ -243,5 +247,13 @@ window.localisation.nl = {
   logout: 'Afmelden',
   look_and_feel: 'Uiterlijk en gedrag',
   language: 'Taal',
-  color_scheme: 'Kleurenschema'
+  color_scheme: 'Kleurenschema',
+  extension_cost: 'Deze release vereist een betaling van minimaal {cost} sats.',
+  extension_paid_sats: 'U heeft al {paid_sats} sats betaald.',
+  release_details_error: 'Kan de gegevens van de release niet ophalen.',
+  pay_from_wallet: 'Betalen vanuit Portemonnee',
+  show_qr: 'Toon QR',
+  retry_install: 'Opnieuw installeren',
+  new_payment: 'Nieuwe betaling maken',
+  hide_empty_wallets: 'Verberg lege portemonnees'
 }

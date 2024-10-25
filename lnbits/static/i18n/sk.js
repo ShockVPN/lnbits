@@ -9,6 +9,8 @@ window.localisation.sk = {
   transactions: 'Transakcie',
   dashboard: 'Prehľad',
   node: 'Uzol',
+  export_users: 'Exportovať používateľov',
+  no_users: 'Nenašli sa žiadni používatelia',
   total_capacity: 'Celková kapacita',
   avg_channel_size: 'Priemerná veľkosť kanálu',
   biggest_channel_size: 'Najväčší kanál',
@@ -32,10 +34,12 @@ window.localisation.sk = {
   reset_defaults: 'Obnoviť predvolené',
   reset_defaults_tooltip: 'Odstrániť všetky nastavenia a obnoviť predvolené.',
   download_backup: 'Stiahnuť zálohu databázy',
-  name_your_wallet: 'Pomenujte vašu %{name} peňaženku',
+  name_your_wallet: 'Pomenujte vašu {name} peňaženku',
+  wallet_topup_ok:
+    'Úspešne vytvorené virtuálne prostriedky ({amount} sats). Platby závisia od skutočných prostriedkov v zdroji financovania.',
   paste_invoice_label: 'Vložte faktúru, platobnú požiadavku alebo lnurl kód *',
   lnbits_description:
-    'Ľahko nastaviteľný a ľahkotonážny, LNbits môže bežať na akomkoľvek zdroji financovania lightning-network, momentálne podporuje LND, Core Lightning, OpenNode, Alby, ZBD, LNPay a dokonca LNbits samotný! LNbits môžete používať pre seba, alebo ľahko ponúknuť správcovské riešenie pre iných. Každá peňaženka má svoje vlastné API kľúče a nie je limit na počet peňaženiek, ktoré môžete vytvoriť. Schopnosť rozdeľovať finančné prostriedky robí z LNbits užitočný nástroj pre správu peňazí a ako vývojový nástroj. Rozšírenia pridávajú extra funkčnosť do LNbits, takže môžete experimentovať s radou najnovších technológií na lightning sieti. Vývoj rozšírení sme urobili čo najjednoduchší a ako voľný a open-source projekt, podporujeme ľudí vývoj a odovzdávanie vlastných rozšírení.',
+    'Ľahko nastaviteľný a ľahkotonážny, LNbits môže bežať na akomkoľvek zdroji financovania Lightning Network a dokonca LNbits samotný! LNbits môžete používať pre seba, alebo ľahko ponúknuť správcovské riešenie pre iných. Každá peňaženka má svoje vlastné API kľúče a nie je limit na počet peňaženiek, ktoré môžete vytvoriť. Schopnosť rozdeľovať finančné prostriedky robí z LNbits užitočný nástroj pre správu peňazí a ako vývojový nástroj. Rozšírenia pridávajú extra funkčnosť do LNbits, takže môžete experimentovať s radou najnovších technológií na lightning sieti. Vývoj rozšírení sme urobili čo najjednoduchší a ako voľný a open-source projekt, podporujeme ľudí vývoj a odovzdávanie vlastných rozšírení.',
   export_to_phone: 'Exportovať do telefónu s QR kódom',
   export_to_phone_desc:
     'Tento QR kód obsahuje URL vašej peňaženky s plným prístupom. Môžete ho naskenovať z vášho telefónu a otvoriť vašu peňaženku odtiaľ.',
@@ -53,10 +57,10 @@ window.localisation.sk = {
   donate: 'Prispieť',
   view_github: 'Zobraziť na GitHube',
   voidwallet_active: 'VoidWallet je aktívny! Platby zakázané',
-  use_with_caution: 'POUŽÍVAJTE OPATRNE - %{name} peňaženka je stále v BETE',
-  service_fee: 'Servisný poplatok: %{amount} % za transakciu',
+  use_with_caution: 'POUŽÍVAJTE OPATRNE - {name} peňaženka je stále v BETE',
+  service_fee: 'Servisný poplatok: {amount} % za transakciu',
   service_fee_max:
-    'Servisný poplatok: %{amount} % za transakciu (max %{max} satoshi)',
+    'Servisný poplatok: {amount} % za transakciu (max {max} satoshi)',
   service_fee_tooltip:
     'Servisný poplatok účtovaný správcom LNbits servera za odchádzajúcu transakciu',
   toggle_darkmode: 'Prepnúť Tmavý režim',
@@ -67,7 +71,7 @@ window.localisation.sk = {
   lnbits_version: 'Verzia LNbits',
   runs_on: 'Beží na',
   credit_hint: 'Stlačte Enter pre pripísanie na účet',
-  credit_label: '%{denomination} na pripísanie',
+  credit_label: '{denomination} na pripísanie',
   paste: 'Vložiť',
   paste_from_clipboard: 'Vložiť zo schránky',
   paste_request: 'Vložiť požiadavku',
@@ -98,6 +102,7 @@ window.localisation.sk = {
     'Toto je LNURL-withdraw QR kód pre vyprázdnienie všetkého z tejto peňaženky. S nikým ho nezdieľajte. Je kompatibilný s balanceCheck a balanceNotify, takže vaša peňaženka môže naďalej kontinuálne vyťahovať prostriedky odtiaľto po prvom výbere.',
   i_understand: 'Rozumiem',
   copy_wallet_url: 'Kopírovať URL peňaženky',
+  disclaimer_dialog_title: 'Dôležité!',
   disclaimer_dialog:
     'Funkcionalita prihlásenia bude vydaná v budúcej aktualizácii, zatiaľ si uistite, že ste si túto stránku pridali medzi záložky pre budúci prístup k vašej peňaženke! Táto služba je v BETA verzii a nenesieme zodpovednosť za stratu prístupu k prostriedkom.',
   no_transactions: 'Zatiaľ žiadne transakcie',
@@ -148,8 +153,8 @@ window.localisation.sk = {
   expiry: 'Expirácia',
   webhook: 'Webhook',
   payment_proof: 'Dôkaz platby',
-  update_available: 'Dostupná aktualizácia %{version}!',
-  latest_update: 'Máte najnovšiu verziu %{version}.',
+  update_available: 'Dostupná aktualizácia {version}!',
+  latest_update: 'Máte najnovšiu verziu {version}.',
   notifications: 'Notifikácie',
   no_notifications: 'Žiadne notifikácie',
   notifications_disabled: 'Notifikácie stavu LNbits sú zakázané.',
@@ -239,5 +244,13 @@ window.localisation.sk = {
   logout: 'Odhlásiť sa',
   look_and_feel: 'Vzhľad a dojem',
   language: 'Jazyk',
-  color_scheme: 'Farebná schéma'
+  color_scheme: 'Farebná schéma',
+  extension_cost: 'Táto verzia vyžaduje minimálnu platbu {cost} satoshi.',
+  extension_paid_sats: 'Už ste zaplatili {paid_sats} sats.',
+  release_details_error: 'Nepodarilo sa získať podrobnosti o vydaní.',
+  pay_from_wallet: 'Zaplatiť z peňaženky',
+  show_qr: 'Zobraziť QR',
+  retry_install: 'Skúste inštaláciu znova',
+  new_payment: 'Vytvoriť novú platbu',
+  hide_empty_wallets: 'Skryť prázdne peňaženky'
 }

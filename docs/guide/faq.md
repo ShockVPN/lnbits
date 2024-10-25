@@ -4,10 +4,10 @@ title: FAQ
 nav_order: 5
 ---
 
-
 # FAQ - Frequently Asked Questions
 
 ## Install options
+
 <ul><p>LNbits is not a node management software but a ⚡️LN only accounting system on top of a funding source.</p>
 
 <details><summary>Funding my LNbits wallet from my node it doesn't work.</summary>
@@ -54,6 +54,7 @@ allow-self-payment=1
   </ul>
 
 ## Troubleshooting
+
 <ul><details><summary>Message "https error" or network error" when scanning a LNbits QR</summary>
 <p>Bad news, this is a routing error that might have quite a lot of reasons. Let´s try a few of the most possible problems and their solutions. First choose your setup</p>
   <ul>
@@ -83,7 +84,7 @@ allow-self-payment=1
 <details><summary>Wallet-URL deleted, are my funds safu ?</summary>
     <ul>
       <li>
-        <details><summary>Wallet on demo server legend.lnbits</summary>
+        <details><summary>Wallet on demo server demo.lnbits.com</summary>
         <p>Always save a copy of your wallet-URL, Export2phone-QR or LNDhub for your own wallets in a safe place. LNbits CANNOT help you to recover them when lost.</p>
         </details>
       </li>
@@ -100,7 +101,7 @@ allow-self-payment=1
 
 <details><summary>Configure a comment that people see when paying to my LNURLp QR</summary>
   <p>When you create a LNURL-p, by default the comment box is not filled. That means comments are not allowed to be attached to payments.<p>
-  <p>In order to allow comments, add the characters lenght of the box, from 1 to 250. Once you put a number there,
+  <p>In order to allow comments, add the characters length of the box, from 1 to 250. Once you put a number there,
      the comment box will be displayed in the payment process. You can also edit a LNURL-p already created and add that number.</p>
 
 ![lnbits-lnurl-comment.png](https://i.postimg.cc/HkJQ9xKr/lnbits-lnurl-comment.png)
@@ -150,11 +151,10 @@ allow-self-payment=1
 </details>
 
   <details><summary>Can I configure a name to the payments i make?</summary>
-  <p>In LNbits this is currently not possible to do - but to receive. This is only possible if the sender's LN wallet supports <a href="https://github.com/lnurl/luds">LUD-18</a> (nameDesc) like e.g. <a href="https://darthcoin.substack.com/p/obw-open-bitcoin-wallet">Open Bitcion Wallet - OBW</a> does. You will then see an alias/pseudonym in the details section of your LNbits transactions (click the arrows). Note that you can give any name there and it might not be related to the real sender´s name(!) if your receive such.</p>
+  <p>In LNbits this is currently not possible to do - but to receive. This is only possible if the sender's LN wallet supports <a href="https://github.com/lnurl/luds">LUD-18</a> (nameDesc) like e.g. <a href="https://darthcoin.substack.com/p/obw-open-bitcoin-wallet">Open Bitcoin Wallet - OBW</a> does. You will then see an alias/pseudonym in the details section of your LNbits transactions (click the arrows). Note that you can give any name there and it might not be related to the real sender´s name(!) if your receive such.</p>
 ![lnbits-tx-details.png](https://i.postimg.cc/yYnvyK4w/lnbits-tx-details.png)
   </p>
   </details>
-
 
 <details><summary>How can I use a LNbits lndhub account in other wallet apps?</summary>
   <p>Open your LNbits with the account / wallet you want to use, go to "manage extensions" and activate the <a href="https://github.com/lnbits/lndhub">LNDHUB extension</a>.</p>
@@ -166,6 +166,7 @@ allow-self-payment=1
   </ul>
 
 ## Building hardware tools
+
 <ul>  <p>LNbits has all sorts of open APIs and tools to program and connect to a lot of different devices for a gazillion of use-cases. Let us know what you did with it ! Come to the <a href="https://t.me/makerbits">Makerbits Telegram Group</a> if you are interested in building or if you need help with a project - we got you!</p>
 
 <details><summary>ATM - deposit and withdraw in your shop or at your meetup</summary>
@@ -216,6 +217,7 @@ allow-self-payment=1
   </ul>
 
 ## Use cases of LNbits
+
 <ul><details><summary>Merchant</summary>
   <p>LNbits is a powerful solution for merchants, due to the easy setup with various extensions, that can be used for many scenarios.</p>
   <p><a href="https://darthcoin.substack.com/p/lnbits-for-small-merchants">Here is an overview of the LNbits tools available for a small restaurant as well as a hotel</a></p>
@@ -262,6 +264,7 @@ allow-self-payment=1
 </ul>
 
 ## Developing for LNbits
+
  <ul>
     <li><a href="https://docs.lnbits.org/devs/development.html">Making extensions / How to use Websockets / API reference</a></li>
     <li><a href="https://t.me/lnbits">Telegram LNbits Support Group</a></li></ul>

@@ -30,17 +30,22 @@ from .base import (
 
 
 class FakeWallet(Wallet):
-    queue: asyncio.Queue = asyncio.Queue(0)
-    payment_secrets: Dict[str, str] = dict()
-    paid_invoices: Set[str] = set()
-    secret: str = settings.fake_wallet_secret
-    privkey: str = hashlib.pbkdf2_hmac(
-        "sha256",
-        secret.encode(),
-        ("FakeWallet").encode(),
-        2048,
-        32,
-    ).hex()
+
+    def __init__(self) -> None:
+        self.queue: asyncio.Queue = asyncio.Queue(0)
+        self.payment_secrets: Dict[str, str] = {}
+        self.paid_invoices: Set[str] = set()
+        self.secret: str = settings.fake_wallet_secret
+        self.privkey: str = hashlib.pbkdf2_hmac(
+            "sha256",
+            self.secret.encode(),
+            b"FakeWallet",
+            2048,
+            32,
+        ).hex()
+
+    async def cleanup(self):
+        pass
 
     async def status(self) -> StatusResponse:
         logger.info(
@@ -130,6 +135,6 @@ class FakeWallet(Wallet):
         return PaymentPendingStatus()
 
     async def paid_invoices_stream(self) -> AsyncGenerator[str, None]:
-        while True:
+        while settings.lnbits_running:
             value: Bolt11 = await self.queue.get()
             yield value.payment_hash

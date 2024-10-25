@@ -1,4 +1,4 @@
-new Vue({
+window.app = Vue.createApp({
   el: '#vue',
   mixins: [windowMixin],
   data: function () {
@@ -41,12 +41,22 @@ new Vue({
       formAddExtensionsManifest: '',
       formAllowedIPs: '',
       formBlockedIPs: '',
+      nostrAcceptedUrl: '',
       isSuperUser: false,
       wallet: {},
       cancel: {},
-      topUpDialog: {
-        show: false
-      },
+      colors: [
+        'primary',
+        'secondary',
+        'accent',
+        'positive',
+        'negative',
+        'info',
+        'warning',
+        'red',
+        'yellow',
+        'orange'
+      ],
       tab: 'funding',
       needsRestart: false
     }
@@ -72,7 +82,6 @@ new Vue({
       let addUser = this.formAddAdmin
       let admin_users = this.formData.lnbits_admin_users
       if (addUser && addUser.length && !admin_users.includes(addUser)) {
-        //admin_users = [...admin_users, addUser]
         this.formData.lnbits_admin_users = [...admin_users, addUser]
         this.formAddAdmin = ''
       }
@@ -173,37 +182,26 @@ new Vue({
         b => b !== blocked_ip
       )
     },
+    addNostrUrl() {
+      const url = this.nostrAcceptedUrl.trim()
+      this.removeNostrUrl(url)
+      this.formData.nostr_absolute_request_urls.push(url)
+      this.nostrAcceptedUrl = ''
+    },
+    removeNostrUrl(url) {
+      this.formData.nostr_absolute_request_urls =
+        this.formData.nostr_absolute_request_urls.filter(b => b !== url)
+    },
     restartServer() {
       LNbits.api
         .request('GET', '/admin/api/v1/restart/')
         .then(response => {
-          this.$q.notify({
+          Quasar.Notify.create({
             type: 'positive',
             message: 'Success! Restarted Server',
             icon: null
           })
           this.needsRestart = false
-        })
-        .catch(function (error) {
-          LNbits.utils.notifyApiError(error)
-        })
-    },
-    topupWallet() {
-      LNbits.api
-        .request(
-          'PUT',
-          '/admin/api/v1/topup/',
-          this.g.user.wallets[0].adminkey,
-          this.wallet
-        )
-        .then(response => {
-          this.$q.notify({
-            type: 'positive',
-            message:
-              'Success! Added ' + this.wallet.amount + ' to ' + this.wallet.id,
-            icon: null
-          })
-          this.wallet = {}
         })
         .catch(function (error) {
           LNbits.utils.notifyApiError(error)
@@ -229,7 +227,7 @@ new Vue({
     },
     getAudit() {
       LNbits.api
-        .request('GET', '/admin/api/v1/audit/', this.g.user.wallets[0].adminkey)
+        .request('GET', '/admin/api/v1/audit', this.g.user.wallets[0].adminkey)
         .then(response => {
           this.auditData = response.data
         })
@@ -241,7 +239,7 @@ new Vue({
       LNbits.api
         .request(
           'GET',
-          '/admin/api/v1/settings/',
+          '/admin/api/v1/settings',
           this.g.user.wallets[0].adminkey
         )
         .then(response => {
@@ -262,7 +260,7 @@ new Vue({
       LNbits.api
         .request(
           'PUT',
-          '/admin/api/v1/settings/',
+          '/admin/api/v1/settings',
           this.g.user.wallets[0].adminkey,
           data
         )
@@ -273,7 +271,7 @@ new Vue({
             this.settings.lnbits_killswitch !== this.formData.lnbits_killswitch
           this.settings = this.formData
           this.formData = _.clone(this.settings)
-          this.$q.notify({
+          Quasar.Notify.create({
             type: 'positive',
             message: `Success! Settings changed! ${
               this.needsRestart ? 'Restart required!' : ''
@@ -290,9 +288,9 @@ new Vue({
         .confirmDialog('Are you sure you want to restore settings to default?')
         .onOk(() => {
           LNbits.api
-            .request('DELETE', '/admin/api/v1/settings/')
+            .request('DELETE', '/admin/api/v1/settings')
             .then(response => {
-              this.$q.notify({
+              Quasar.Notify.create({
                 type: 'positive',
                 message:
                   'Success! Restored settings to defaults, restart required!',
@@ -306,7 +304,7 @@ new Vue({
         })
     },
     downloadBackup() {
-      window.open('/admin/api/v1/backup/', '_blank')
+      window.open('/admin/api/v1/backup', '_blank')
     }
   }
 })

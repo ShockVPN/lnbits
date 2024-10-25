@@ -6,8 +6,10 @@ format: prettier black ruff
 
 check: mypy pyright checkblack checkruff checkprettier checkbundle
 
+test: test-unit test-wallets test-api test-regtest
+
 prettier:
-	poetry run ./node_modules/.bin/prettier --write lnbits
+	poetry run ./node_modules/.bin/prettier --write .
 
 pyright:
 	poetry run ./node_modules/.bin/pyright
@@ -25,7 +27,7 @@ checkruff:
 	poetry run ruff check .
 
 checkprettier:
-	poetry run ./node_modules/.bin/prettier --check lnbits
+	poetry run ./node_modules/.bin/prettier --check .
 
 checkblack:
 	poetry run black --check .
@@ -36,23 +38,39 @@ checkeditorconfig:
 dev:
 	poetry run lnbits --reload
 
-test:
-	LNBITS_BACKEND_WALLET_CLASS="FakeWallet" \
-	FAKE_WALLET_SECRET="ToTheMoon1" \
-	LNBITS_DATA_FOLDER="./tests/data" \
-	PYTHONUNBUFFERED=1 \
-	DEBUG=true \
-	poetry run pytest
+docker:
+	docker build -t lnbits/lnbits .
 
-test-real-wallet:
+test-wallets:
+	LNBITS_DATA_FOLDER="./tests/data" \
+	LNBITS_BACKEND_WALLET_CLASS="FakeWallet" \
+	PYTHONUNBUFFERED=1 \
+	DEBUG=true \
+	poetry run pytest tests/wallets
+
+test-unit:
+	LNBITS_DATA_FOLDER="./tests/data" \
+	LNBITS_BACKEND_WALLET_CLASS="FakeWallet" \
+	PYTHONUNBUFFERED=1 \
+	DEBUG=true \
+	poetry run pytest tests/unit
+
+test-api:
+	LNBITS_DATA_FOLDER="./tests/data" \
+	LNBITS_BACKEND_WALLET_CLASS="FakeWallet" \
+	PYTHONUNBUFFERED=1 \
+	DEBUG=true \
+	poetry run pytest tests/api
+
+test-regtest:
 	LNBITS_DATA_FOLDER="./tests/data" \
 	PYTHONUNBUFFERED=1 \
 	DEBUG=true \
-	poetry run pytest
+	poetry run pytest tests/regtest
 
 test-migration:
 	LNBITS_ADMIN_UI=True \
-	make test
+	make test-api
 	HOST=0.0.0.0 \
 	PORT=5002 \
 	LNBITS_DATA_FOLDER="./tests/data" \
@@ -69,6 +87,7 @@ migration:
 	poetry run python tools/conv.py
 
 openapi:
+	LNBITS_ADMIN_UI=False \
 	LNBITS_BACKEND_WALLET_CLASS="FakeWallet" \
 	LNBITS_DATA_FOLDER="./tests/data" \
 	PYTHONUNBUFFERED=1 \
@@ -86,32 +105,23 @@ bak:
 sass:
 	npm run sass
 
-bundle_no_bump:
-	npm install
-	npm run sass
-	npm run vendor_copy
-	npm run vendor_json
-	poetry run ./node_modules/.bin/prettier -w ./lnbits/static/vendor.json
-	npm run vendor_bundle_css
-	npm run vendor_minify_css
-	npm run vendor_bundle_js
-	npm run vendor_minify_js
-
 bundle:
-	make bundle_no_bump
-	# increment serviceworker version
-	awk '/CACHE_VERSION =/ {sub(/[0-9]+$$/, $$NF+1)} 1' lnbits/static/js/service-worker.js > lnbits/static/js/service-worker.js.new
-	mv lnbits/static/js/service-worker.js.new lnbits/static/js/service-worker.js
+	npm install
+	npm run bundle
+	poetry run ./node_modules/.bin/prettier -w ./lnbits/static/vendor.json
 
 checkbundle:
 	cp lnbits/static/bundle.min.js lnbits/static/bundle.min.js.old
 	cp lnbits/static/bundle.min.css lnbits/static/bundle.min.css.old
-	make bundle_no_bump
+	cp lnbits/static/bundle-components.min.js lnbits/static/bundle-components.min.js.old
+	make bundle
 	diff -q lnbits/static/bundle.min.js lnbits/static/bundle.min.js.old || exit 1
 	diff -q lnbits/static/bundle.min.css lnbits/static/bundle.min.css.old || exit 1
+	diff -q lnbits/static/bundle-components.min.js lnbits/static/bundle-components.min.js.old || exit 1
 	@echo "Bundle is OK"
 	rm lnbits/static/bundle.min.js.old
 	rm lnbits/static/bundle.min.css.old
+	rm lnbits/static/bundle-components.min.js.old
 
 install-pre-commit-hook:
 	@echo "Installing pre-commit hook to git"

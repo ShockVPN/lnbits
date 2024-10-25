@@ -3,38 +3,58 @@ import asyncio
 from time import time
 
 import uvloop
+from asgi_lifespan import LifespanManager
+
+from lnbits.wallets.fake import FakeWallet
 
 uvloop.install()
 
 import pytest
 import pytest_asyncio
 from fastapi.testclient import TestClient
-from httpx import AsyncClient
+from httpx import ASGITransport, AsyncClient
 
 from lnbits.app import create_app
 from lnbits.core.crud import (
     create_account,
     create_wallet,
+    get_account_by_username,
     get_user,
     update_payment_status,
 )
-from lnbits.core.models import CreateInvoice
-from lnbits.core.services import update_wallet_balance
-from lnbits.core.views.api import api_payments_create_invoice
+from lnbits.core.models import CreateInvoice, PaymentState
+from lnbits.core.services import create_user_account, update_wallet_balance
+from lnbits.core.views.payment_api import api_payments_create_invoice
 from lnbits.db import DB_TYPE, SQLITE, Database
-from lnbits.settings import settings
+from lnbits.settings import AuthMethods, settings
 from tests.helpers import (
-    clean_database,
-    get_hold_invoice,
     get_random_invoice_data,
-    get_real_invoice,
 )
 
 # override settings for tests
-settings.lnbits_admin_extensions = []
 settings.lnbits_data_folder = "./tests/data"
 settings.lnbits_admin_ui = True
 settings.lnbits_extensions_default_install = []
+settings.lnbits_extensions_deactivate_all = True
+
+
+@pytest.fixture(autouse=True)
+def run_before_and_after_tests():
+    """Fixture to execute asserts before and after a test is run"""
+    ##### BEFORE TEST RUN #####
+
+    settings.lnbits_allow_new_accounts = True
+    settings.auth_allowed_methods = AuthMethods.all()
+    settings.auth_credetials_update_threshold = 120
+    settings.lnbits_reserve_fee_percent = 1
+    settings.lnbits_reserve_fee_min = 2000
+    settings.lnbits_service_fee = 0
+    settings.lnbits_wallet_limit_daily_max_withdraw = 0
+    settings.lnbits_admin_extensions = []
+
+    yield  # this is where the testing happens
+
+    ##### AFTER TEST RUN #####
 
 
 @pytest_asyncio.fixture(scope="session")
@@ -47,19 +67,26 @@ def event_loop():
 # use session scope to run once before and once after all tests
 @pytest_asyncio.fixture(scope="session")
 async def app():
-    clean_database(settings)
     app = create_app()
-    await app.router.startup()
-    settings.first_install = False
-    yield app
-    await app.router.shutdown()
+    async with LifespanManager(app) as manager:
+        settings.first_install = False
+        yield manager.app
 
 
 @pytest_asyncio.fixture(scope="session")
 async def client(app):
-    client = AsyncClient(app=app, base_url=f"http://{settings.host}:{settings.port}")
-    yield client
-    await client.aclose()
+    url = f"http://{settings.host}:{settings.port}"
+    async with AsyncClient(transport=ASGITransport(app=app), base_url=url) as client:
+        yield client
+
+
+# function scope
+@pytest_asyncio.fixture(scope="function")
+async def http_client(app):
+    url = f"http://{settings.host}:{settings.port}"
+
+    async with AsyncClient(transport=ASGITransport(app=app), base_url=url) as client:
+        yield client
 
 
 @pytest.fixture(scope="session")
@@ -70,6 +97,16 @@ def test_client(app):
 @pytest_asyncio.fixture(scope="session")
 async def db():
     yield Database("database")
+
+
+@pytest_asyncio.fixture(scope="package")
+async def user_alan():
+    user = await get_account_by_username("alan")
+    if not user:
+        user = await create_user_account(
+            email="alan@lnbits.com", username="alan", password="secret1234"
+        )
+    yield user
 
 
 @pytest_asyncio.fixture(scope="session")
@@ -93,7 +130,7 @@ async def from_wallet(from_user):
 async def from_wallet_ws(from_wallet, test_client):
     # wait a bit in order to avoid receiving topup notification
     await asyncio.sleep(0.1)
-    with test_client.websocket_connect(f"/api/v1/ws/{from_wallet.id}") as ws:
+    with test_client.websocket_connect(f"/api/v1/ws/{from_wallet.inkey}") as ws:
         yield ws
 
 
@@ -132,7 +169,7 @@ async def to_wallet(to_user):
 async def to_wallet_ws(to_wallet, test_client):
     # wait a bit in order to avoid receiving topup notification
     await asyncio.sleep(0.1)
-    with test_client.websocket_connect(f"/api/v1/ws/{to_wallet.id}") as ws:
+    with test_client.websocket_connect(f"/api/v1/ws/{to_wallet.inkey}") as ws:
         yield ws
 
 
@@ -175,17 +212,15 @@ async def adminkey_headers_to(to_wallet):
 @pytest_asyncio.fixture(scope="session")
 async def invoice(to_wallet):
     data = await get_random_invoice_data()
-    invoiceData = CreateInvoice(**data)
-    invoice = await api_payments_create_invoice(invoiceData, to_wallet)
+    invoice_data = CreateInvoice(**data)
+    invoice = await api_payments_create_invoice(invoice_data, to_wallet)
     yield invoice
     del invoice
 
 
 @pytest_asyncio.fixture(scope="function")
-async def real_invoice():
-    invoice = get_real_invoice(100)
-    yield {"bolt11": invoice["payment_request"]}
-    del invoice
+async def external_funding_source():
+    yield FakeWallet()
 
 
 @pytest_asyncio.fixture(scope="session")
@@ -207,14 +242,9 @@ async def fake_payments(client, adminkey_headers_from):
             "/api/v1/payments", headers=adminkey_headers_from, json=invoice.dict()
         )
         assert response.is_success
-        await update_payment_status(response.json()["checking_id"], pending=False)
+        data = response.json()
+        assert data["checking_id"]
+        await update_payment_status(data["checking_id"], status=PaymentState.SUCCESS)
 
     params = {"time[ge]": ts, "time[le]": time()}
     return fake_data, params
-
-
-@pytest_asyncio.fixture(scope="function")
-async def hold_invoice():
-    invoice = get_hold_invoice(100)
-    yield invoice
-    del invoice

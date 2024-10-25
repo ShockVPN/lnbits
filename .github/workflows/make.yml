@@ -25,8 +25,8 @@ jobs:
         node-version: ["18.x"]
     runs-on: ${{ matrix.os-version }}
     steps:
-      - uses: actions/checkout@v3
-      - uses: ./.github/actions/prepare
+      - uses: actions/checkout@v4
+      - uses: lnbits/lnbits/.github/actions/prepare@dev
         with:
           python-version: ${{ inputs.python-version }}
           node-version: ${{ matrix.node-version }}

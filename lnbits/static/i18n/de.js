@@ -9,6 +9,8 @@ window.localisation.de = {
   transactions: 'Transaktionen',
   dashboard: 'Armaturenbrett',
   node: 'Knoten',
+  export_users: 'Benutzer exportieren',
+  no_users: 'Keine Benutzer gefunden',
   total_capacity: 'Gesamtkapazität',
   avg_channel_size: 'Durchschn. Kanalgröße',
   biggest_channel_size: 'Größte Kanalgröße',
@@ -33,11 +35,13 @@ window.localisation.de = {
   reset_defaults_tooltip:
     'Alle Einstellungen auf die Standardeinstellungen zurücksetzen.',
   download_backup: 'Datenbank-Backup herunterladen',
-  name_your_wallet: 'Vergib deiner %{name} Wallet einen Namen',
+  name_your_wallet: 'Vergib deiner {name} Wallet einen Namen',
+  wallet_topup_ok:
+    'Erfolg beim Erstellen von virtuellen Mitteln ({amount} Satoshis). Zahlungen hängen von den tatsächlichen Mitteln der Finanzierungsquelle ab.',
   paste_invoice_label:
     'Füge eine Rechnung, Zahlungsanforderung oder LNURL ein *',
   lnbits_description:
-    'Einfach zu installieren und kompakt, LNbits kann auf jeder Funding-Quelle im Lightning Netzwerk aufsetzen. Derzeit unterstützt: LND, Core Lightning, OpenNode, Alby, ZBD, LNPay und sogar LNbits selbst! Du kannst LNbits für dich selbst betreiben oder anderen die Verwaltung durch dich anbieten. Jede Wallet hat ihre eigenen API-Schlüssel und die Anzahl der Wallets ist unbegrenzt. Die Möglichkeit, Gelder auf verschiedene Accounts mit unterschiedlicher Logik aufteilen zu können macht LNbits zu einem nützlichen Werkzeug für deine Buchhaltung - aber auch als Entwicklungswerkzeug. Erweiterungen bereichern LNbits Accounts um zusätzliche Funktionalität, so dass du mit einer Reihe von neuartigen Technologien auf dem Lightning-Netzwerk experimentieren kannst. Wir haben es so einfach wie möglich gemacht, Erweiterungen zu entwickeln, und als freies und Open-Source-Projekt möchten wir Menschen ermutigen, sich selbst hieran zu versuchen und gemeinsam mit uns neue Funktionalitäten zu entwickeln.',
+    'Einfach zu installieren und kompakt, LNbits kann auf jeder Funding-Quelle im Lightning Netzwerk aufsetzen und sogar LNbits selbst! Du kannst LNbits für dich selbst betreiben oder anderen die Verwaltung durch dich anbieten. Jede Wallet hat ihre eigenen API-Schlüssel und die Anzahl der Wallets ist unbegrenzt. Die Möglichkeit, Gelder auf verschiedene Accounts mit unterschiedlicher Logik aufteilen zu können macht LNbits zu einem nützlichen Werkzeug für deine Buchhaltung - aber auch als Entwicklungswerkzeug. Erweiterungen bereichern LNbits Accounts um zusätzliche Funktionalität, so dass du mit einer Reihe von neuartigen Technologien auf dem Lightning-Netzwerk experimentieren kannst. Wir haben es so einfach wie möglich gemacht, Erweiterungen zu entwickeln, und als freies und Open-Source-Projekt möchten wir Menschen ermutigen, sich selbst hieran zu versuchen und gemeinsam mit uns neue Funktionalitäten zu entwickeln.',
   export_to_phone: 'Auf dem Telefon öffnen',
   export_to_phone_desc:
     'Dieser QR-Code beinhaltet vollständige Rechte auf deine Wallet. Du kannst den QR-Code mit Deinem Telefon scannen, um deine Wallet dort zu öffnen.',
@@ -55,11 +59,9 @@ window.localisation.de = {
   donate: 'Spenden',
   view_github: 'Auf GitHub anzeigen',
   voidwallet_active: 'VoidWallet ist aktiv! Zahlungen deaktiviert',
-  use_with_caution:
-    'BITTE MIT VORSICHT BENUTZEN - %{name} Wallet ist noch BETA',
-  service_fee: 'Dienstleistungsgebühr: %{amount} % pro Transaktion',
-  service_fee_max:
-    'Servicegebühr: %{amount} % pro Transaktion (max %{max} Sats)',
+  use_with_caution: 'BITTE MIT VORSICHT BENUTZEN - {name} Wallet ist noch BETA',
+  service_fee: 'Dienstleistungsgebühr: {amount} % pro Transaktion',
+  service_fee_max: 'Servicegebühr: {amount} % pro Transaktion (max {max} Sats)',
   service_fee_tooltip:
     'Bearbeitungsgebühr, die vom LNbits Server-Administrator pro ausgehender Transaktion berechnet wird',
   toggle_darkmode: 'Auf Dark Mode umschalten',
@@ -70,7 +72,7 @@ window.localisation.de = {
   lnbits_version: 'LNbits-Version',
   runs_on: 'Läuft auf',
   credit_hint: 'Klicke Enter, um das Konto zu belasten',
-  credit_label: '%{denomination} zu belasten',
+  credit_label: '{denomination} zu belasten',
   paste: 'Einfügen',
   paste_from_clipboard: 'Einfügen aus der Zwischenablage',
   paste_request: 'Anfrage einfügen',
@@ -102,6 +104,7 @@ window.localisation.de = {
     'LNURL-withdraw QR-Code, der das Abziehen aller Geldmittel aus dieser Wallet erlaubt. Teile ihn mit niemandem! Kompatibel mit balanceCheck und balanceNotify, so dass dein Wallet die Sats nach dem ersten Abzug kontinuierlich von hier abziehen kann.',
   i_understand: 'Ich verstehe',
   copy_wallet_url: 'Wallet-URL kopieren',
+  disclaimer_dialog_title: 'Wichtig!',
   disclaimer_dialog:
     'Login-Funktionalität wird in einem zukünftigen Update veröffentlicht. Bis dahin ist die Speicherung der Wallet-URL als Lesezeichen absolut notwendig, um Zugriff auf die Wallet zu erhalten! Dieser Service ist in BETA und wir übernehmen keine Verantwortung für Verluste durch verlorene Zugriffe.',
   no_transactions: 'Keine Transaktionen',
@@ -153,8 +156,8 @@ window.localisation.de = {
   expiry: 'Ablauf',
   webhook: 'Webhook',
   payment_proof: 'Beleg',
-  update_available: 'Aktualisierung %{version} verfügbar!',
-  latest_update: 'Sie sind auf der neuesten Version %{version}.',
+  update_available: 'Aktualisierung {version} verfügbar!',
+  latest_update: 'Sie sind auf der neuesten Version {version}.',
   notifications: 'Benachrichtigungen',
   no_notifications: 'Keine Benachrichtigungen',
   notifications_disabled: 'LNbits Statusbenachrichtigungen sind deaktiviert.',
@@ -166,7 +169,7 @@ window.localisation.de = {
     'Falls aktiviert, wird Ihre Zahlungsquelle automatisch auf VoidWallet umgestellt, wenn LNbits ein Killswitch-Signal sendet. Nach einem Update müssen Sie dies manuell wieder aktivieren.',
   killswitch_interval: 'Intervall für den Notausschalter',
   killswitch_interval_desc:
-    'Wie oft die Hintergrundaufgabe nach dem LNBits-Killswitch-Signal aus der Statusquelle suchen soll (in Minuten).',
+    'Wie oft die Hintergrundaufgabe nach dem LNbits-Killswitch-Signal aus der Statusquelle suchen soll (in Minuten).',
   enable_watchdog: 'Aktiviere Watchdog',
   enable_watchdog_desc:
     'Wenn aktiviert, wird Ihre Zahlungsquelle automatisch auf VoidWallet umgestellt, wenn Ihr Guthaben niedriger als das LNbits-Guthaben ist. Nach einem Update müssen Sie dies manuell aktivieren.',
@@ -245,5 +248,14 @@ window.localisation.de = {
   logout: 'Abmelden',
   look_and_feel: 'Aussehen und Verhalten',
   language: 'Sprache',
-  color_scheme: 'Farbschema'
+  color_scheme: 'Farbschema',
+  extension_cost:
+    'Diese Version erfordert eine Zahlung von mindestens {cost} Sats.',
+  extension_paid_sats: 'Sie haben bereits {paid_sats} Sats bezahlt.',
+  release_details_error: 'Kann die Details zur Veröffentlichung nicht abrufen.',
+  pay_from_wallet: 'Zahlen aus dem Geldbeutel',
+  show_qr: 'QR anzeigen',
+  retry_install: 'Installieren erneut versuchen',
+  new_payment: 'Neue Zahlung vornehmen',
+  hide_empty_wallets: 'Leere Geldbörsen verbergen'
 }

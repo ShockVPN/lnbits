@@ -9,6 +9,8 @@ window.localisation.cn = {
   transactions: '交易记录',
   dashboard: '控制面板',
   node: '节点',
+  export_users: '导出用户',
+  no_users: '未找到用户',
   total_capacity: '总容量',
   avg_channel_size: '平均频道大小',
   biggest_channel_size: '最大通道大小',
@@ -32,10 +34,12 @@ window.localisation.cn = {
   reset_defaults: '重置为默认设置',
   reset_defaults_tooltip: '删除所有设置并重置为默认设置',
   download_backup: '下载数据库备份',
-  name_your_wallet: '给你的 %{name}钱包起个名字',
+  name_your_wallet: '给你的 {name}钱包起个名字',
+  wallet_topup_ok:
+    '成功创建虚拟资金（{amount} sats）。付款取决于资金来源的实际资金。',
   paste_invoice_label: '粘贴发票，付款请求或lnurl*',
   lnbits_description:
-    'LNbits 设置简单、轻量级，可以运行在任何闪电网络的版本上，目前支持 LND、Core Lightning、OpenNode、Alby, ZBD, LNPay，甚至 LNbits 本身！您可以为自己运行 LNbits，或者为他人轻松提供资金托管。每个钱包都有自己的 API 密钥，你可以创建的钱包数量没有限制。能够把资金分开管理使 LNbits 成为一款有用的资金管理和开发工具。扩展程序增加了 LNbits 的额外功能，所以你可以在闪电网络上尝试各种尖端技术。我们已经尽可能简化了开发扩展程序的过程，作为一个免费和开源的项目，我们鼓励人们开发并提交自己的扩展程序。',
+    'LNbits 设置简单、轻量级，可以在任何闪电网络的资金来源上运行，甚至可以在LNbits自身上运行！您可以为自己运行LNbits，或者轻松为他人提供托管解决方案。每个钱包都有自己的 API 密钥，你可以创建的钱包数量没有限制。能够把资金分开管理使 LNbits 成为一款有用的资金管理和开发工具。扩展程序增加了 LNbits 的额外功能，所以你可以在闪电网络上尝试各种尖端技术。我们已经尽可能简化了开发扩展程序的过程，作为一个免费和开源的项目，我们鼓励人们开发并提交自己的扩展程序。',
   export_to_phone: '通过二维码导出到手机',
   export_to_phone_desc:
     '这个二维码包含您钱包的URL。您可以使用手机扫描的方式打开您的钱包。',
@@ -52,9 +56,9 @@ window.localisation.cn = {
   donate: '捐献',
   view_github: '在GitHub上查看',
   voidwallet_active: 'VoidWallet 已激活！付款功能已禁用。',
-  use_with_caution: '请谨慎使用 - %{name}钱包还处于测试版阶段',
-  service_fee: '服务费：%{amount}% 每笔交易',
-  service_fee_max: '服务费：%{amount}% 每笔交易（最高 %{max} sats）',
+  use_with_caution: '请谨慎使用 - {name}钱包还处于测试版阶段',
+  service_fee: '服务费：{amount}% 每笔交易',
+  service_fee_max: '服务费：{amount}% 每笔交易（最高 {max} sats）',
   service_fee_tooltip: 'LNbits服务器管理员每笔外发交易收取的服务费',
   toggle_darkmode: '切换暗黑模式',
   payment_reactions: '支付反应',
@@ -64,7 +68,7 @@ window.localisation.cn = {
   lnbits_version: 'LNbits版本',
   runs_on: '可运行在',
   credit_hint: '按 Enter 键充值账户',
-  credit_label: '%{denomination} 充值',
+  credit_label: '{denomination} 充值',
   paste: '粘贴',
   paste_from_clipboard: '从剪贴板粘贴',
   paste_request: '粘贴请求',
@@ -95,6 +99,7 @@ window.localisation.cn = {
     '这是一个 LNURL-取款的二维码，用于从该钱包中提取全部资金。请不要与他人分享。它与 balanceCheck 和 balanceNotify 兼容，因此在第一次取款后，您的钱包还可能会持续从这里提取资金',
   i_understand: '我明白',
   copy_wallet_url: '复制钱包URL',
+  disclaimer_dialog_title: '重要！',
   disclaimer_dialog:
     '登录功能将在以后的更新中发布，请将此页面加为书签，以便将来访问您的钱包！此服务处于测试阶段，我们不对资金的丢失承担任何责任。',
   no_transactions: '尚未进行任何交易',
@@ -141,8 +146,8 @@ window.localisation.cn = {
   expiry: '过期时间',
   webhook: 'Webhook',
   payment_proof: '付款证明',
-  update_available: '更新%{version}可用！',
-  latest_update: '您当前使用的是最新版本%{version}。',
+  update_available: '更新{version}可用！',
+  latest_update: '您当前使用的是最新版本{version}。',
   notifications: '通知',
   no_notifications: '没有通知',
   notifications_disabled: 'LNbits状态通知已禁用。',
@@ -154,7 +159,7 @@ window.localisation.cn = {
     '如果启用，当LNbits发送终止信号时，系统将自动将您的资金来源更改为VoidWallet。更新后，您将需要手动启用。',
   killswitch_interval: 'Killswitch 间隔',
   killswitch_interval_desc:
-    '后台任务应该多久检查一次来自状态源的LNBits断路信号（以分钟为单位）。',
+    '后台任务应该多久检查一次来自状态源的LNbits断路信号（以分钟为单位）。',
   enable_watchdog: '启用看门狗',
   enable_watchdog_desc:
     '如果启用，当您的余额低于LNbits余额时，系统将自动将您的资金来源更改为VoidWallet。更新后您将需要手动启用。',
@@ -229,5 +234,13 @@ window.localisation.cn = {
   logout: '注销',
   look_and_feel: '外观和感觉',
   language: '语言',
-  color_scheme: '配色方案'
+  color_scheme: '配色方案',
+  extension_cost: '此版本需要支付最低 {cost} sats。',
+  extension_paid_sats: '您已经支付了{paid_sats} sats。',
+  release_details_error: '无法获取发布详情。',
+  pay_from_wallet: '从钱包支付',
+  show_qr: '显示QR码',
+  retry_install: '重试安装',
+  new_payment: '创建新支付',
+  hide_empty_wallets: '隐藏空钱包'
 }

@@ -9,6 +9,8 @@ window.localisation.jp = {
   transactions: 'トランザクション',
   dashboard: 'ダッシュボード',
   node: 'ノード',
+  export_users: 'ユーザーのエクスポート',
+  no_users: 'ユーザーが見つかりません',
   total_capacity: '合計容量',
   avg_channel_size: '平均チャンネルサイズ',
   biggest_channel_size: '最大チャネルサイズ',
@@ -32,10 +34,12 @@ window.localisation.jp = {
   reset_defaults: 'リセット',
   reset_defaults_tooltip: 'すべての設定を削除してデフォルトに戻します。',
   download_backup: 'データベースのバックアップをダウンロードする',
-  name_your_wallet: 'あなたのウォレットの名前 %{name}',
+  name_your_wallet: 'あなたのウォレットの名前 {name}',
+  wallet_topup_ok:
+    '仮想資金の作成に成功しました（{amount} sats）。支払いは資金ソースの実際の資金に依存します。',
   paste_invoice_label: '請求書を貼り付けてください',
   lnbits_description:
-    '簡単にインストールでき、軽量で、LNbitsは現在LND、Core Lightning、OpenNode、Alby, ZBD, LNPay、さらにLNbits自身で動作する任意のLightningネットワークの資金源で実行できます！ LNbitsを自分で実行することも、他の人に優れたソリューションを提供することもできます。各ウォレットには独自のAPIキーがあり、作成できるウォレットの数に制限はありません。資金を分割する機能は、LNbitsを資金管理ツールとして使用したり、開発ツールとして使用したりするための便利なツールです。拡張機能は、LNbitsに追加の機能を追加します。そのため、LNbitsは最先端の技術をネットワークLightningで試すことができます。拡張機能を開発するのは簡単で、無料でオープンソースのプロジェクトであるため、人々が自分で開発し、自分の貢献を送信することを奨励しています。',
+    '簡単にインストールでき、軽量なLNbitsは、あらゆるライトニングネットワークの資金源と、LNbits自身でさえも実行できます！LNbitsを個人で実行することも、他人に対してカストディアンソリューションをで実行できます！ LNbitsを自分で実行することも、他の人に優れたソリューションを提供することもできます。各ウォレットには独自のAPIキーがあり、作成できるウォレットの数に制限はありません。資金を分割する機能は、LNbitsを資金管理ツールとして使用したり、開発ツールとして使用したりするための便利なツールです。拡張機能は、LNbitsに追加の機能を追加します。そのため、LNbitsは最先端の技術をネットワークLightningで試すことができます。拡張機能を開発するのは簡単で、無料でオープンソースのプロジェクトであるため、人々が自分で開発し、自分の貢献を送信することを奨励しています。',
   export_to_phone: '電話にエクスポート',
   export_to_phone_desc:
     'ウォレットを電話にエクスポートすると、ウォレットを削除する前にウォレットを復元できます。ウォレットを削除すると、ウォレットの秘密鍵が削除され、ウォレットを復元することはできません。',
@@ -54,9 +58,9 @@ window.localisation.jp = {
   view_github: 'GitHubで表示',
   voidwallet_active: 'Voidwalletアクティブ',
   use_with_caution:
-    '注意して使用してください - %{name} ウォレットはまだベータ版です',
-  service_fee: '取引ごとのサービス手数料: %{amount} %',
-  service_fee_max: '取引手数料：%{amount}%（最大%{max}サトシ）',
+    '注意して使用してください - {name} ウォレットはまだベータ版です',
+  service_fee: '取引ごとのサービス手数料: {amount} %',
+  service_fee_max: '取引手数料：{amount}%（最大{max}サトシ）',
   service_fee_tooltip: 'LNbitsサーバー管理者が発生する送金ごとの手数料',
   toggle_darkmode: 'ダークモードを切り替える',
   payment_reactions: '支払いの反応',
@@ -67,7 +71,7 @@ window.localisation.jp = {
   runs_on: 'で実行',
   credit_hint:
     'クレジットカードを使用して資金を追加するには、LNbitsを使用してください。',
-  credit_label: '%{denomination} をクレジットに',
+  credit_label: '{denomination} をクレジットに',
   paste: '貼り付け',
   paste_from_clipboard: 'クリップボードから貼り付け',
   paste_request: 'リクエストを貼り付ける',
@@ -97,6 +101,7 @@ window.localisation.jp = {
   drain_funds_desc: 'ウォレットの残高をすべて他のウォレットに送金します',
   i_understand: '理解した',
   copy_wallet_url: 'ウォレットURLをコピー',
+  disclaimer_dialog_title: '重要！',
   disclaimer_dialog:
     'ウォレットを削除すると、ウォレットの秘密鍵が削除され、ウォレットを復元することはできません。ウォレットを削除する前に、ウォレットをエクスポートしてください。',
   no_transactions: 'トランザクションはありません',
@@ -148,8 +153,8 @@ window.localisation.jp = {
   expiry: '有効期限',
   webhook: 'ウェブフック',
   payment_proof: '支払い証明',
-  update_available: 'アップデート%{version}が利用可能です！',
-  latest_update: 'あなたは最新バージョン%{version}を使用しています。',
+  update_available: 'アップデート{version}が利用可能です！',
+  latest_update: 'あなたは最新バージョン{version}を使用しています。',
   notifications: '通知',
   no_notifications: '通知はありません',
   notifications_disabled: 'LNbitsステータス通知は無効です。',
@@ -161,7 +166,7 @@ window.localisation.jp = {
     '有効にすると、LNbitsからキルスイッチ信号が送信された場合に自動的に資金源をVoidWalletに切り替えます。更新後には手動で有効にする必要があります。',
   killswitch_interval: 'キルスイッチ間隔',
   killswitch_interval_desc:
-    'バックグラウンドタスクがステータスソースからLNBitsキルスイッチ信号を確認する頻度（分単位）。',
+    'バックグラウンドタスクがステータスソースからLNbitsキルスイッチ信号を確認する頻度（分単位）。',
   enable_watchdog: 'ウォッチドッグを有効にする',
   enable_watchdog_desc:
     '有効にすると、残高がLNbitsの残高より少ない場合に、資金源を自動的にVoidWalletに変更します。アップデート後は手動で有効にする必要があります。',
@@ -240,5 +245,13 @@ window.localisation.jp = {
   logout: 'ログアウト',
   look_and_feel: 'ルック・アンド・フィール',
   language: '言語',
-  color_scheme: 'カラースキーム'
+  color_scheme: 'カラースキーム',
+  extension_cost: 'このリリースには最低 {cost} サトシの支払いが必要です。',
+  extension_paid_sats: 'すでに{paid_sats} satsを支払いました。',
+  release_details_error: 'リリースの詳細を取得できません。',
+  pay_from_wallet: 'ウォレットから支払う',
+  show_qr: 'QRを表示',
+  retry_install: '再試行インストール',
+  new_payment: '新しい支払いを作成する',
+  hide_empty_wallets: '空のウォレットを非表示にする'
 }

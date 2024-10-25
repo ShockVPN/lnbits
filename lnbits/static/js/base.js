@@ -1,15 +1,10 @@
-/* globals crypto, moment, Vue, axios, Quasar, _ */
-
-Vue.use(VueI18n)
-
 window.LOCALE = 'en'
-window.i18n = new VueI18n({
+window.i18n = new VueI18n.createI18n({
   locale: window.LOCALE,
   fallbackLocale: window.LOCALE,
   messages: window.localisation
 })
 
-window.EventHub = new Vue()
 window.LNbits = {
   api: {
     request: function (method, url, apiKey, data) {
@@ -22,6 +17,9 @@ window.LNbits = {
         data: data
       })
     },
+    getServerHealth: function () {
+      return this.request('get', '/api/v1/health')
+    },
     createInvoice: async function (
       wallet,
       amount,
@@ -33,8 +31,8 @@ window.LNbits = {
         out: false,
         amount: amount,
         memo: memo,
-        unit: unit,
-        lnurl_callback: lnurlCallback
+        lnurl_callback: lnurlCallback,
+        unit: unit
       })
     },
     payInvoice: function (wallet, bolt11) {
@@ -83,11 +81,30 @@ window.LNbits = {
         }
       })
     },
+    reset: function (reset_key, password, password_repeat) {
+      return axios({
+        method: 'PUT',
+        url: '/api/v1/auth/reset',
+        data: {
+          reset_key,
+          password,
+          password_repeat
+        }
+      })
+    },
     login: function (username, password) {
       return axios({
         method: 'POST',
         url: '/api/v1/auth',
         data: {username, password}
+      })
+    },
+    loginByProvider: function (provider, headers, data) {
+      return axios({
+        method: 'POST',
+        url: `/api/v1/auth/${provider}`,
+        headers: headers,
+        data
       })
     },
     loginUsr: function (usr) {
@@ -145,22 +162,15 @@ window.LNbits = {
       )
     },
     updateBalance: function (credit, wallet_id) {
-      return LNbits.api
-        .request('PUT', '/admin/api/v1/topup/', null, {
-          amount: credit,
-          id: wallet_id
-        })
-        .then(_ => {
-          Quasar.Notify.create({
-            type: 'positive',
-            message: 'Success! Added ' + credit + ' sats to ' + wallet_id,
-            icon: null
-          })
-          return parseInt(credit)
-        })
-        .catch(function (error) {
-          LNbits.utils.notifyApiError(error)
-        })
+      return this.request('PUT', '/users/api/v1/topup', null, {
+        amount: credit,
+        id: wallet_id
+      })
+    },
+    getCurrencies() {
+      return this.request('GET', '/api/v1/currencies').then(response => {
+        return ['sats', ...response.data]
+      })
     }
   },
   events: {
@@ -199,7 +209,7 @@ window.LNbits = {
   },
   map: {
     extension: function (data) {
-      var obj = _.object(
+      const obj = _.object(
         [
           'code',
           'isValid',
@@ -216,7 +226,7 @@ window.LNbits = {
       return obj
     },
     user: function (data) {
-      var obj = {
+      const obj = {
         id: data.id,
         admin: data.admin,
         email: data.email,
@@ -224,7 +234,7 @@ window.LNbits = {
         wallets: data.wallets,
         admin: data.admin
       }
-      var mapWallet = this.wallet
+      const mapWallet = this.wallet
       obj.wallets = obj.wallets
         .map(function (obj) {
           return mapWallet(obj)
@@ -259,7 +269,7 @@ window.LNbits = {
     payment: function (data) {
       obj = {
         checking_id: data.checking_id,
-        pending: data.pending,
+        status: data.status,
         amount: data.amount,
         fee: data.fee,
         memo: data.memo,
@@ -276,12 +286,12 @@ window.LNbits = {
         fiat_currency: data.fiat_currency
       }
 
-      obj.date = Quasar.utils.date.formatDate(
+      obj.date = Quasar.date.formatDate(
         new Date(obj.time * 1000),
         'YYYY-MM-DD HH:mm'
       )
       obj.dateFrom = moment(obj.date).fromNow()
-      obj.expirydate = Quasar.utils.date.formatDate(
+      obj.expirydate = Quasar.date.formatDate(
         new Date(obj.expiry * 1000),
         'YYYY-MM-DD HH:mm'
       )
@@ -292,14 +302,21 @@ window.LNbits = {
       obj.fsat = new Intl.NumberFormat(window.LOCALE).format(obj.sat)
       obj.isIn = obj.amount > 0
       obj.isOut = obj.amount < 0
-      obj.isPaid = !obj.pending
+      obj.isPending = obj.status === 'pending'
+      obj.isPaid = obj.status === 'success'
+      obj.isFailed = obj.status === 'failed'
       obj._q = [obj.memo, obj.sat].join(' ').toLowerCase()
+      try {
+        obj.details = JSON.parse(data.extra?.details || '{}')
+      } catch {
+        obj.details = {extraDetails: data.extra?.details}
+      }
       return obj
     }
   },
   utils: {
     confirmDialog: function (msg) {
-      return Quasar.plugins.Dialog.create({
+      return Quasar.Dialog.create({
         message: msg,
         ok: {
           flat: true,
@@ -333,12 +350,15 @@ window.LNbits = {
       return this.formatSat(value / 1000)
     },
     notifyApiError: function (error) {
-      var types = {
+      if (!error.response) {
+        return console.error(error)
+      }
+      const types = {
         400: 'warning',
         401: 'warning',
         500: 'negative'
       }
-      Quasar.plugins.Notify.create({
+      Quasar.Notify.create({
         timeout: 5000,
         type: types[error.response.status] || 'warning',
         message:
@@ -352,9 +372,9 @@ window.LNbits = {
     },
     search: function (data, q, field, separator) {
       try {
-        var queries = q.toLowerCase().split(separator || ' ')
+        const queries = q.toLowerCase().split(separator || ' ')
         return data.filter(function (obj) {
-          var matches = 0
+          let matches = 0
           _.each(queries, function (q) {
             if (obj[field].indexOf(q) !== -1) matches++
           })
@@ -383,8 +403,8 @@ window.LNbits = {
       return new URLSearchParams(query)
     },
     exportCSV: function (columns, data, fileName) {
-      var wrapCsvValue = function (val, formatFn) {
-        var formatted = formatFn !== void 0 ? formatFn(val) : val
+      const wrapCsvValue = function (val, formatFn) {
+        let formatted = formatFn !== void 0 ? formatFn(val) : val
 
         formatted =
           formatted === void 0 || formatted === null ? '' : String(formatted)
@@ -394,7 +414,7 @@ window.LNbits = {
         return `"${formatted}"`
       }
 
-      var content = [
+      const content = [
         columns.map(function (col) {
           return wrapCsvValue(col.label)
         })
@@ -415,14 +435,14 @@ window.LNbits = {
         )
         .join('\r\n')
 
-      var status = Quasar.utils.exportFile(
+      const status = Quasar.exportFile(
         `${fileName || 'table-export'}.csv`,
         content,
         'text/csv'
       )
 
       if (status !== true) {
-        Quasar.plugins.Notify.create({
+        Quasar.Notify.create({
           message: 'Browser denied file download...',
           color: 'negative',
           icon: null
@@ -434,6 +454,18 @@ window.LNbits = {
       converter.setFlavor('github')
       converter.setOption('simpleLineBreaks', true)
       return converter.makeHtml(text)
+    },
+    hexToRgb: function (hex) {
+      return Quasar.colors.hexToRgb(hex)
+    },
+    hexDarken: function (hex, percent) {
+      return Quasar.colors.lighten(hex, percent)
+    },
+    hexAlpha: function (hex, alpha) {
+      return Quasar.colors.changeAlpha(hex, alpha)
+    },
+    getPaletteColor: function (color) {
+      return Quasar.colors.getPaletteColor(color)
     }
   }
 }
@@ -444,6 +476,8 @@ window.windowMixin = {
     return {
       toggleSubs: true,
       reactionChoice: 'confettiBothSides',
+      gradientChoice:
+        this.$q.localStorage.getItem('lnbits.gradientBg') || false,
       isUserAuthorized: false,
       g: {
         offline: !navigator.onLine,
@@ -463,10 +497,43 @@ window.windowMixin = {
       document.body.setAttribute('data-theme', newValue)
       this.$q.localStorage.set('lnbits.theme', newValue)
     },
+    applyGradient: function () {
+      if (this.$q.localStorage.getItem('lnbits.gradientBg')) {
+        this.setColors()
+        darkBgColor = this.$q.localStorage.getItem('lnbits.darkBgColor')
+        primaryColor = this.$q.localStorage.getItem('lnbits.primaryColor')
+        const gradientStyle = `linear-gradient(to bottom right, ${LNbits.utils.hexDarken(String(primaryColor), -70)}, #0a0a0a)`
+        document.body.style.setProperty(
+          'background-image',
+          gradientStyle,
+          'important'
+        )
+        const gradientStyleCards = `background-color: ${LNbits.utils.hexAlpha(String(darkBgColor), 0.4)} !important`
+        const style = document.createElement('style')
+        style.innerHTML =
+          `body[data-theme="${this.$q.localStorage.getItem('lnbits.theme')}"] .q-card:not(.q-dialog .q-card, .lnbits__dialog-card, .q-dialog-plugin--dark), body.body${this.$q.dark.isActive ? '--dark' : ''} .q-header, body.body${this.$q.dark.isActive ? '--dark' : ''} .q-drawer { ${gradientStyleCards} }` +
+          `body[data-theme="${this.$q.localStorage.getItem('lnbits.theme')}"].body--dark{background: ${LNbits.utils.hexDarken(String(primaryColor), -88)} !important; }` +
+          `[data-theme="${this.$q.localStorage.getItem('lnbits.theme')}"] .q-card--dark{background: ${String(darkBgColor)} !important;} }`
+        document.head.appendChild(style)
+      }
+    },
+    setColors: function () {
+      this.$q.localStorage.set(
+        'lnbits.primaryColor',
+        LNbits.utils.getPaletteColor('primary')
+      )
+      this.$q.localStorage.set(
+        'lnbits.secondaryColor',
+        LNbits.utils.getPaletteColor('secondary')
+      )
+      this.$q.localStorage.set(
+        'lnbits.darkBgColor',
+        LNbits.utils.getPaletteColor('dark')
+      )
+    },
     copyText: function (text, message, position) {
-      var notify = this.$q.notify
-      Quasar.utils.copyToClipboard(text).then(function () {
-        notify({
+      Quasar.copyToClipboard(text).then(function () {
+        Quasar.Notify.create({
           message: message || 'Copied to clipboard!',
           position: position || 'bottom'
         })
@@ -512,6 +579,52 @@ window.windowMixin = {
             LNbits.utils.notifyApiError(e)
           }
         })
+    },
+    themeParams() {
+      const url = new URL(window.location.href)
+      const params = new URLSearchParams(window.location.search)
+      const fields = ['theme', 'dark', 'gradient']
+      const toBoolean = value =>
+        value.trim().toLowerCase() === 'true' || value === '1'
+
+      // Check if any of the relevant parameters ('theme', 'dark', 'gradient') are present in the URL.
+      if (fields.some(param => params.has(param))) {
+        const theme = params.get('theme')
+        const darkMode = params.get('dark')
+        const gradient = params.get('gradient')
+
+        if (
+          theme &&
+          this.g.allowedThemes.includes(theme.trim().toLowerCase())
+        ) {
+          const normalizedTheme = theme.trim().toLowerCase()
+          document.body.setAttribute('data-theme', normalizedTheme)
+          this.$q.localStorage.set('lnbits.theme', normalizedTheme)
+        }
+
+        if (darkMode) {
+          const isDark = toBoolean(darkMode)
+          this.$q.localStorage.set('lnbits.darkMode', isDark)
+          if (!isDark) {
+            this.$q.localStorage.set('lnbits.gradientBg', false)
+          }
+        }
+
+        if (gradient) {
+          const isGradient = toBoolean(gradient)
+          this.$q.localStorage.set('lnbits.gradientBg', isGradient)
+          if (isGradient) {
+            this.$q.localStorage.set('lnbits.darkMode', true)
+          }
+        }
+
+        // Remove processed parameters
+        fields.forEach(param => params.delete(param))
+
+        window.history.replaceState(null, null, url.pathname)
+      }
+
+      this.setColors()
     }
   },
   created: async function () {
@@ -531,7 +644,7 @@ window.windowMixin = {
     let locale = this.$q.localStorage.getItem('lnbits.lang')
     if (locale) {
       window.LOCALE = locale
-      window.i18n.locale = locale
+      window.i18n.global.locale = locale
     }
 
     this.g.langs = window.langs ?? []
@@ -564,6 +677,8 @@ window.windowMixin = {
       )
     }
 
+    this.applyGradient()
+
     if (window.user) {
       this.g.user = Object.freeze(window.LNbits.map.user(window.user))
     }
@@ -571,7 +686,7 @@ window.windowMixin = {
       this.g.wallet = Object.freeze(window.LNbits.map.wallet(window.wallet))
     }
     if (window.extensions) {
-      var user = this.g.user
+      const user = this.g.user
       const extensions = Object.freeze(
         window.extensions
           .map(function (data) {
@@ -602,6 +717,7 @@ window.windowMixin = {
       this.g.extensions = extensions
     }
     await this.checkUsrInUrl()
+    this.themeParams()
   }
 }
 

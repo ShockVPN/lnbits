@@ -9,7 +9,7 @@ from lnbits import bolt11
 from ..crud import get_standalone_payment
 from ..tasks import api_invoice_listeners
 
-public_router = APIRouter()
+public_router = APIRouter(tags=["Core"])
 
 
 @public_router.get("/public/v1/payment/{payment_hash}")
@@ -20,17 +20,18 @@ async def api_public_payment_longpolling(payment_hash):
         raise HTTPException(
             status_code=HTTPStatus.NOT_FOUND, detail="Payment does not exist."
         )
-    elif not payment.pending:
+    # TODO: refactor to use PaymentState
+    if payment.success:
         return {"status": "paid"}
 
     try:
         invoice = bolt11.decode(payment.bolt11)
         if invoice.has_expired():
             return {"status": "expired"}
-    except Exception:
+    except Exception as exc:
         raise HTTPException(
             status_code=HTTPStatus.BAD_REQUEST, detail="Invalid bolt11 invoice."
-        )
+        ) from exc
 
     payment_queue = asyncio.Queue(0)
 
@@ -50,7 +51,7 @@ async def api_public_payment_longpolling(payment_hash):
         cancel_scope.cancel()
 
     cancel_scope = asyncio.create_task(payment_info_receiver())
-    asyncio.create_task(timeouter(cancel_scope))
+    asyncio.create_task(timeouter(cancel_scope))  # noqa: RUF006
 
     if response:
         return response

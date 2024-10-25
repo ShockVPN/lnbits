@@ -2,7 +2,7 @@
   description = "LNbits, free and open-source Lightning wallet and accounts system";
 
   inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs/nixos-23.11";
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-24.05";
     poetry2nix = {
       url = "github:nix-community/poetry2nix";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -30,6 +30,7 @@
           meta.rev = self.dirtyRev or self.rev;
           meta.mainProgram = projectName;
           overrides = pkgs.poetry2nix.overrides.withDefaults (final: prev: {
+            coincurve = prev.coincurve.override { preferWheel = true; };
             protobuf = prev.protobuf.override { preferWheel = true; };
             ruff = prev.ruff.override { preferWheel = true; };
             wallycore = prev.wallycore.override { preferWheel = true; };

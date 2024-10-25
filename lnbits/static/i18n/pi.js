@@ -9,6 +9,8 @@ window.localisation.pi = {
   transactions: 'Pirate Transactions and loot',
   dashboard: 'Arrr-board',
   node: 'Node',
+  export_users: 'Export Mateys',
+  no_users: 'No swabbies found',
   total_capacity: 'Total Capacity',
   avg_channel_size: 'Avg. Channel Size',
   biggest_channel_size: 'Largest Bilge Size',
@@ -33,10 +35,12 @@ window.localisation.pi = {
   reset_defaults_tooltip:
     'Scuttle all settings and reset to Davy Jones Locker. Aye, start anew!',
   download_backup: 'Download database booty',
-  name_your_wallet: 'Name yer %{name} treasure chest',
+  name_your_wallet: 'Name yer {name} treasure chest',
+  wallet_topup_ok:
+    "Success creatin' virtual funds ({amount} sats). Payments depend on actual funds on funding source.",
   paste_invoice_label: 'Paste a booty, payment request or lnurl code, matey!',
   lnbits_description:
-    'Arr, easy to set up and lightweight, LNbits can run on any lightning-network funding source, currently supporting LND, Core Lightning, OpenNode, Alby, ZBD, LNPay and even LNbits itself! Ye can run LNbits for yourself, or easily offer a custodian solution for others. Each chest has its own API keys and there be no limit to the number of chests ye can make. Being able to partition booty makes LNbits a useful tool for money management and as a development tool. Arr, extensions add extra functionality to LNbits so ye can experiment with a range of cutting-edge technologies on the lightning network. We have made developing extensions as easy as possible, and as a free and open-source project, we encourage scallywags to develop and submit their own.',
+    'Arr, easy to set up and lightweight, LNbits can run on any Lightning Network funding source and even LNbits itself! Ye can run LNbits for yourself, or easily offer a custodian solution for others. Each chest has its own API keys and there be no limit to the number of chests ye can make. Being able to partition booty makes LNbits a useful tool for money management and as a development tool. Arr, extensions add extra functionality to LNbits so ye can experiment with a range of cutting-edge technologies on the lightning network. We have made developing extensions as easy as possible, and as a free and open-source project, we encourage scallywags to develop and submit their own.',
   export_to_phone: 'Export to Phone with QR Code, me hearties',
   export_to_phone_desc:
     'This QR code contains yer chest URL with full access. Ye can scan it from yer phone to open yer chest from there, arr!',
@@ -55,9 +59,9 @@ window.localisation.pi = {
   view_github: 'View on GitHub and find treasures',
   voidwallet_active: 'VoidWallet be active! Payments disabled',
   use_with_caution:
-    'USE WITH CAUTION - %{name} chest be still in BETA. Aye, be careful!',
-  service_fee: 'Service fee: %{amount} % per transaction',
-  service_fee_max: 'Service fee: %{amount} % per transaction (max %{max} sats)',
+    'USE WITH CAUTION - {name} chest be still in BETA. Aye, be careful!',
+  service_fee: 'Service fee: {amount} % per transaction',
+  service_fee_max: 'Service fee: {amount} % per transaction (max {max} sats)',
   service_fee_tooltip:
     "Service fee charged by the LNbits server admin per goin' transaction",
   toggle_darkmode: 'Toggle Dark Mode, arr!',
@@ -68,7 +72,7 @@ window.localisation.pi = {
   lnbits_version: 'LNbits version, arr!',
   runs_on: 'Runs on, matey',
   credit_hint: 'Press Enter to credit account and make it richer',
-  credit_label: '%{denomination} to credit, arr!',
+  credit_label: '{denomination} to credit, arr!',
   paste: 'Stow',
   paste_from_clipboard: 'Paste from clipboard',
   paste_request: 'Paste Request and find treasures',
@@ -100,6 +104,7 @@ window.localisation.pi = {
     'This be an LNURL-withdraw QR code for slurpin everything from this wallet. Don`t share with anyone. It be compatible with balanceCheck and balanceNotify so yer wallet may keep pullin` the funds continuously from here after the first withdraw.',
   i_understand: 'I understand, yo ho ho and a bottle of rum!',
   copy_wallet_url: 'Copy wallet URL like a map, savvy',
+  disclaimer_dialog_title: 'Avast!',
   disclaimer_dialog:
     'Login functionality to be released in a future update, for now, make sure ye bookmark this page for future access to your booty! This service be in BETA, and we hold no responsibility for people losing access to doubloons.',
   no_transactions: 'No transactions made yet, me hearties. Belay that!',
@@ -150,8 +155,8 @@ window.localisation.pi = {
   expiry: 'Expiry like the food on a ship, ye landlubber',
   webhook: 'Webhook like a fishing line, arrr',
   payment_proof: 'Payment Proof like a seal of authenticity, argh',
-  update_available: 'Update %{version} available, me matey!',
-  latest_update: "Ye be on th' latest version %{version}.",
+  update_available: 'Update {version} available, me matey!',
+  latest_update: "Ye be on th' latest version {version}.",
   notifications: 'Notificashuns',
   no_notifications: "No noticin's",
   notifications_disabled: 'LNbits status notifications be disabled, arr!',
@@ -163,7 +168,7 @@ window.localisation.pi = {
     "If enabled it'll be changin' yer fundin' source to VoidWallet automatically if LNbits sends out a killswitch signal, ye will. Ye'll be needin' t' enable manually after an update, arr.",
   killswitch_interval: 'Killswitch Interval',
   killswitch_interval_desc:
-    "How oft th' background task should be checkin' fer th' LNBits killswitch signal from th' status source (in minutes).",
+    "How oft th' background task should be checkin' fer th' LNbits killswitch signal from th' status source (in minutes).",
   enable_watchdog: 'Enable Seadog',
   enable_watchdog_desc:
     "If enabled, it will swap yer treasure source t' VoidWallet on its own if yer balance be lower than th' LNbits balance. Ye'll need t' enable by hand after an update.",
@@ -192,7 +197,7 @@ window.localisation.pi = {
   rate_limiter: 'Rate Limiter',
   wallet_limiter: 'Pouch Limitar',
   wallet_limit_max_withdraw_per_day:
-    'Max daily wallet withdrawal in sats (0 ter disable)',
+    'Max daily wallet withdrawal in sats (0 for no limit, -1 to block withdrawal)',
   wallet_max_ballance: 'Purse max heaviness in sats (0 fer scuttle)',
   wallet_limit_secs_between_trans:
     "Min secs 'tween transactions per wallet (0 to disable)",
@@ -201,7 +206,7 @@ window.localisation.pi = {
   minute: 'minnit',
   second: 'second',
   hour: 'hour',
-  disable_server_log: "Disabl' %{Server} Log",
+  disable_server_log: "Disabl' {Server} Log",
   enable_server_log: 'Enable Server Log',
   coming_soon: "Feature comin' soon",
   session_has_expired: 'Yer session has expired. Please login again.',
@@ -240,5 +245,14 @@ window.localisation.pi = {
   logout: 'Log out yer session',
   look_and_feel: 'Look and Feel',
   language: 'Langwidge',
-  color_scheme: 'Colour Scheme'
+  color_scheme: 'Colour Scheme',
+  extension_cost:
+    "This release be needin' a payment o' minimum {cost} sats, arr.",
+  extension_paid_sats: 'Ye have already paid {paid_sats} sats.',
+  release_details_error: "Cannot get th' release details.",
+  pay_from_wallet: 'Pay from ye Wallet',
+  show_qr: 'Show QR',
+  retry_install: "Try 'nstallin' Again",
+  new_payment: 'Make New Payment',
+  hide_empty_wallets: 'Stow empty wallets'
 }

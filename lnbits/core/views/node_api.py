@@ -27,8 +27,8 @@ from ...utils.cache import cache
 
 
 def require_node():
-    NODE = get_node_class()
-    if not NODE:
+    node_class = get_node_class()
+    if not node_class:
         raise HTTPException(
             status_code=HTTPStatus.NOT_IMPLEMENTED,
             detail="Active backend does not implement Node API",
@@ -38,7 +38,7 @@ def require_node():
             status_code=HTTPStatus.SERVICE_UNAVAILABLE,
             detail="Not enabled",
         )
-    return NODE
+    return node_class
 
 
 def check_public():
@@ -49,12 +49,20 @@ def check_public():
         )
 
 
-node_router = APIRouter(prefix="/node/api/v1", dependencies=[Depends(check_admin)])
+node_router = APIRouter(
+    tags=["Node Managment"],
+    prefix="/node/api/v1",
+    dependencies=[Depends(check_admin)],
+)
 super_node_router = APIRouter(
-    prefix="/node/api/v1", dependencies=[Depends(check_super_user)]
+    tags=["Node Managment"],
+    prefix="/node/api/v1",
+    dependencies=[Depends(check_super_user)],
 )
 public_node_router = APIRouter(
-    prefix="/node/public/api/v1", dependencies=[Depends(check_public)]
+    tags=["Node Managment"],
+    prefix="/node/public/api/v1",
+    dependencies=[Depends(check_public)],
 )
 
 
@@ -187,5 +195,7 @@ async def api_get_1ml_stats(node: Node = Depends(require_node)) -> Optional[Node
         try:
             r.raise_for_status()
             return r.json()["noderank"]
-        except httpx.HTTPStatusError:
-            raise HTTPException(status_code=404, detail="Node not found on 1ml.com")
+        except httpx.HTTPStatusError as exc:
+            raise HTTPException(
+                status_code=404, detail="Node not found on 1ml.com"
+            ) from exc

@@ -9,6 +9,8 @@ window.localisation.pl = {
   transactions: 'Transakcje',
   dashboard: 'Panel kontrolny',
   node: 'Węzeł',
+  export_users: 'Eksportuj użytkowników',
+  no_users: 'Nie znaleziono użytkowników',
   total_capacity: 'Całkowita Pojemność',
   avg_channel_size: 'Średni rozmiar kanału',
   biggest_channel_size: 'Największy Rozmiar Kanału',
@@ -32,10 +34,12 @@ window.localisation.pl = {
   reset_defaults: 'Powrót do ustawień domyślnych',
   reset_defaults_tooltip: 'Wymaż wszystkie ustawienia i ustaw domyślne.',
   download_backup: 'Pobierz kopię zapasową bazy danych',
-  name_your_wallet: 'Nazwij swój portfel %{name}',
+  name_your_wallet: 'Nazwij swój portfel {name}',
+  wallet_topup_ok:
+    'Sukces w tworzeniu wirtualnych środków ({amount} sats). Płatności zależą od rzeczywistych środków na źródle finansowania.',
   paste_invoice_label: 'Wklej fakturę, żądanie zapłaty lub kod lnurl *',
   lnbits_description:
-    'Łatwy i lekki w konfiguracji, LNbits może działać w oparciu o dowolne źródło finansowania w sieci lightning, obecnie wspiera LND, Core Lightning, OpenNode, Alby, ZBD, LNPay czy nawet inną instancję LNbits! Możesz uruchomić instancję LNbits dla siebie lub dla innych. Każdy portfel ma swoje klucze API i nie ma ograniczeń jeśli chodzi o ilość portfeli. LNbits umożliwia dzielenie środków w celu zarządzania nimi, jest również dobrym narzędziem deweloperskim. Rozszerzenia zwiększają funkcjonalność LNbits co umożliwia eksperymentowanie z nowym technologiami w sieci lightning. Tworzenie rozszerzeń jest proste dlatego zachęcamy innych deweloperów do tworzenia dodatkowych funkcjonalności i wysyłanie do nas PR',
+    'Łatwy i lekki w konfiguracji, LNbits może działać w oparciu o dowolne źródło finansowania w sieci lightning czy nawet inną instancję LNbits! Możesz uruchomić instancję LNbits dla siebie lub dla innych. Każdy portfel ma swoje klucze API i nie ma ograniczeń jeśli chodzi o ilość portfeli. LNbits umożliwia dzielenie środków w celu zarządzania nimi, jest również dobrym narzędziem deweloperskim. Rozszerzenia zwiększają funkcjonalność LNbits co umożliwia eksperymentowanie z nowym technologiami w sieci lightning. Tworzenie rozszerzeń jest proste dlatego zachęcamy innych deweloperów do tworzenia dodatkowych funkcjonalności i wysyłanie do nas PR',
   export_to_phone: 'Eksport kodu QR na telefon',
   export_to_phone_desc:
     'Ten kod QR zawiera adres URL Twojego portfela z pełnym dostępem do niego. Możesz go zeskanować na swoim telefonie aby otworzyć na nim ten portfel.',
@@ -53,10 +57,10 @@ window.localisation.pl = {
   donate: 'Podaruj',
   view_github: 'Otwórz GitHub',
   voidwallet_active: 'VoidWallet jest aktywny! Płatności są niemożliwe',
-  use_with_caution: 'KORZYSTAJ Z ROZWAGĄ - portfel %{name} jest w wersji BETA',
-  service_fee: 'Opłata serwisowa: %{amount} % za transakcję',
+  use_with_caution: 'KORZYSTAJ Z ROZWAGĄ - portfel {name} jest w wersji BETA',
+  service_fee: 'Opłata serwisowa: {amount} % za transakcję',
   service_fee_max:
-    'Opłata serwisowa: %{amount} % za transakcję (maks %{max} sat)',
+    'Opłata serwisowa: {amount} % za transakcję (maks {max} sat)',
   service_fee_tooltip:
     'Opłata serwisowa pobierana przez administratora serwera LNbits za każdą wychodzącą transakcję',
   toggle_darkmode: 'Tryb nocny',
@@ -67,7 +71,7 @@ window.localisation.pl = {
   lnbits_version: 'Wersja LNbits',
   runs_on: 'Działa na',
   credit_hint: 'Naciśnij Enter aby doładować konto',
-  credit_label: '%{denomination} doładowanie',
+  credit_label: '{denomination} doładowanie',
   paste: 'Wklej',
   paste_from_clipboard: 'Wklej ze schowka',
   paste_request: 'Wklej żądanie',
@@ -98,6 +102,7 @@ window.localisation.pl = {
     'To jest kod QR służący do opróżnienia portfela (LNURL-withdraw). Nie udostępniaj go nikomu. Ten kod jest kompatybilny z funkcjami, które umożliwiają wielokrotne żądania aż do zupełnego opróżnienia portfela.',
   i_understand: 'Rozumiem',
   copy_wallet_url: 'Skopiuj URL portfela',
+  disclaimer_dialog_title: 'Ważne!',
   disclaimer_dialog:
     'Funkcja logowania zostanie uruchomiona w przyszłości. Póki co upewnij się, że zapisałeś adres URL tej strony aby mieć dostęp do tego portfela. Nie udostępniaj adresu tej strony nikomu, kto nie ma mieć do tego portfela dostępu! Ta usługa działa w wersji BETA, nie odpowiadamy za utratę dostępu do środków przez osoby używające LNbits.',
   no_transactions: 'Brak transakcji',
@@ -148,8 +153,8 @@ window.localisation.pl = {
   expiry: 'Wygasa',
   webhook: 'Webhook',
   payment_proof: 'Potwierdzenie płatności',
-  update_available: 'Aktualizacja %{version} dostępna!',
-  latest_update: 'Korzystasz z najnowszej wersji %{version}.',
+  update_available: 'Aktualizacja {version} dostępna!',
+  latest_update: 'Korzystasz z najnowszej wersji {version}.',
   notifications: 'Powiadomienia',
   no_notifications: 'Brak powiadomień',
   notifications_disabled: 'Powiadomienia o statusie LNbits są wyłączone.',
@@ -161,7 +166,7 @@ window.localisation.pl = {
     'Jeśli zostanie włączone, automatycznie zmieni źródło finansowania na VoidWallet, jeśli LNbits wyśle sygnał wyłączający. Po aktualizacji będziesz musiał włączyć to ręcznie.',
   killswitch_interval: 'Interwał wyłącznika awaryjnego',
   killswitch_interval_desc:
-    'Jak często zadanie w tle powinno sprawdzać sygnał wyłącznika awaryjnego LNBits ze źródła statusu (w minutach).',
+    'Jak często zadanie w tle powinno sprawdzać sygnał wyłącznika awaryjnego LNbits ze źródła statusu (w minutach).',
   enable_watchdog: 'Włącz Watchdog',
   enable_watchdog_desc:
     'Jeśli zostanie włączone, automatycznie zmieni źródło finansowania na VoidWallet, jeśli saldo jest niższe niż saldo LNbits. Po aktualizacji trzeba będzie włączyć ręcznie.',
@@ -239,5 +244,14 @@ window.localisation.pl = {
   logout: 'Wyloguj',
   look_and_feel: 'Wygląd i zachowanie',
   language: 'Język',
-  color_scheme: 'Schemat kolorów'
+  color_scheme: 'Schemat kolorów',
+  extension_cost:
+    'To niniejsze wydanie wymaga zapłaty minimalnej {cost} satów.',
+  extension_paid_sats: 'Już zapłaciłeś {paid_sats} satów.',
+  release_details_error: 'Nie można uzyskać szczegółów wydania.',
+  pay_from_wallet: 'Zapłać z portfela',
+  show_qr: 'Pokaż kod QR',
+  retry_install: 'Ponów instalację',
+  new_payment: 'Dokonaj nowej płatności',
+  hide_empty_wallets: 'Ukryj puste portfele'
 }

@@ -9,6 +9,8 @@ window.localisation.fi = {
   transactions: 'Tapahtumat',
   dashboard: 'Ohjauspaneeli',
   node: 'Solmu',
+  export_users: 'Vie käyttäjät',
+  no_users: 'Käyttäjiä ei löytynyt',
   total_capacity: 'Kokonaiskapasiteetti',
   avg_channel_size: 'Keskimääräisen kanavan kapasiteetti',
   biggest_channel_size: 'Suurimman kanavan kapasiteetti',
@@ -33,11 +35,13 @@ window.localisation.fi = {
   reset_defaults_tooltip:
     'Poista kaikki asetusten muutokset ja palauta järjestelmän oletusasetukset.',
   download_backup: 'Lataa tietokannan varmuuskopio',
-  name_your_wallet: 'Anna %{name}-lompakollesi nimi',
+  name_your_wallet: 'Anna {name}-lompakollesi nimi',
+  wallet_topup_ok:
+    'Virtuaalisten varojen luominen onnistui ({amount} sats). Maksut riippuvat rahoituslähteen todellisista varoista.',
   paste_invoice_label:
     'Liitä lasku, maksupyyntö, lnurl-koodi tai Lightning Address *',
   lnbits_description:
-    'Kevyt ja helppokäyttöinen LNbits voi käyttää rahoituslähteinään erilaisia palveluita, kuten LND, Core Lightning, OpenNode, Alby, LNPay ja jopa itseään! Voit käyttää sitä itsenäisesti  ja helposti tarjota erilaisia Lightning-palveluita. Pystyt luomaan sillä salamaverkkolompakoita eikä niiden määrää ole rajoitettu. Jokaiselle lompakolle saat yksilölliset API-avaimet. Varojen osittaminen tekee siitä erittäin kätevän varojen hallinnassa sekä myös ohjelmistokehityksen työkalun. Laajennukset lisäävät LNbits:in toiminnallisuuksia. Näinpä voit helposti testailla useita erilaisia ja viimeisimpiä salamaverkon teknologioita. Laajennuksien kehittämisen olemme pyrkineet tekemään mahdollisimman helpoksi pitämällä LNbits:in ilmaisena OpenSource-projektina. Kannustamme kaikkia kehittämään ja jakelemaan omia laajennuksia!',
+    'Kevyt ja helppokäyttöinen LNbits voi käyttää rahoituslähteinään erilaisia palveluita, ja jopa LNbits itseään! Voit käyttää sitä itsenäisesti ja helposti tarjota erilaisia Lightning-palveluita. Pystyt luomaan sillä salamaverkkolompakoita eikä niiden määrää ole rajoitettu. Jokaiselle lompakolle saat yksilölliset API-avaimet. Varojen osittaminen tekee siitä erittäin kätevän varojen hallinnassa sekä myös ohjelmistokehityksen työkalun. Laajennukset lisäävät LNbits:in toiminnallisuuksia. Näinpä voit helposti testailla useita erilaisia ja viimeisimpiä salamaverkon teknologioita. Laajennuksien kehittämisen olemme pyrkineet tekemään mahdollisimman helpoksi pitämällä LNbits:in ilmaisena OpenSource-projektina. Kannustamme kaikkia kehittämään ja jakelemaan omia laajennuksia!',
   export_to_phone: 'Käytä puhelimessa lukemalla QR-koodi',
   export_to_phone_desc:
     'Tämä QR-koodi sisältää URL-osoitteen, jolla saa lompakkoosi täydet valtuudet. Voi lukea sen puhelimellasi ja avata sillä lompakkosi. Voit myös lisätä lompakkosi selaimella käytettäväksi PWA-sovellukseksi puhelimen aloitusruudulle. ',
@@ -57,21 +61,20 @@ window.localisation.fi = {
   voidwallet_active:
     'Maksutapahtumat ovat poissa käytöstä, koska VoidWallet on aktiivinen!',
   use_with_caution:
-    'KÄYTÄ VAROEN - BETA-ohjelmisto on käytössä palvelussa: %{name}',
-  service_fee: 'Palvelumaksu: %{amount} % tapahtumasta',
-  service_fee_max:
-    'Palvelumaksu: %{amount} % tapahtumasta (enintään %{max} sat)',
+    'KÄYTÄ VAROEN - BETA-ohjelmisto on käytössä palvelussa: {name}',
+  service_fee: 'Palvelumaksu: {amount} % tapahtumasta',
+  service_fee_max: 'Palvelumaksu: {amount} % tapahtumasta (enintään {max} sat)',
   service_fee_tooltip:
-    'LNBits palvelimen ylläpitäjä veloittaa lähtevästä maksusta palvelumaksun.',
+    'LNbits palvelimen ylläpitäjä veloittaa lähtevästä maksusta palvelumaksun.',
   toggle_darkmode: 'Tumma näkymä',
-  toggle_reactions: 'Käytä tapahtuma efektejä',
+  payment_reactions: 'Maksureaktiot',
   view_swagger_docs: 'Näytä LNbits Swagger API-dokumentit',
   api_docs: 'API-dokumentaatio',
   api_keys_api_docs: 'Solmun URL, API-avaimet ja -dokumentaatio',
   lnbits_version: 'LNbits versio',
   runs_on: 'Mukana menossa',
   credit_hint: 'Hyväksy painamalla Enter',
-  credit_label: 'Lisää tilille varoja %{denomination}',
+  credit_label: 'Lisää tilille varoja {denomination}',
   paste: 'Liitä',
   paste_from_clipboard: 'Liitä leikepöydältä',
   paste_request: 'Liitä pyyntö',
@@ -102,6 +105,7 @@ window.localisation.fi = {
     'Tämä LNURL-withdraw -tyyppinen QR-koodi on tarkoitettu kaikkien varojen imurointiin lompakosta. ÄLÄ JAA SITÄ KENELLEKÄÄN! Se on balanceCheck- ja balanceNotify-toimintojen kanssa yhteensopiva, joten sitä voi käyttää lompakon tyhjentämiseen ensimmäisen käytön jälleen jatkuvasti.',
   i_understand: 'Vakuutan ymmärtäväni',
   copy_wallet_url: 'Kopioi lompakon URL',
+  disclaimer_dialog_title: 'Tärkeää!',
   disclaimer_dialog:
     'Muistathan tallettaa kirjautumistietosi turvallisesta ja helposti saataville, jotta pääset jatkossakin kirjautumaan lompakkoosi! Tutustu myös Tilin asetukset -sivuun. Tämä palvelu on kokeiluvaiheessa (eli BETA), ja niinpä kukaan ei ota mitään vastuuta varojen säilymisestä tai niiden käytettävyyden takaamisesta.',
   no_transactions: 'Lompakossa ei ole yhtään tapahtumaa',
@@ -150,9 +154,9 @@ window.localisation.fi = {
   expiry: 'Vanheneminen',
   webhook: 'Webhook',
   payment_proof: 'Maksun varmenne',
-  update_available: 'Saatavilla on päivitys versioon %{version}!',
+  update_available: 'Saatavilla on päivitys versioon {version}!',
   latest_update:
-    'Käytössä oleva versio %{version}, on viimeisin saatavilla oleva.',
+    'Käytössä oleva versio {version}, on viimeisin saatavilla oleva.',
   notifications: 'Tiedotteet',
   no_notifications: 'Ei tiedotteita',
   notifications_disabled: 'LNbits-tilatiedotteet on poistettu käytöstä.',
@@ -241,5 +245,13 @@ window.localisation.fi = {
   logout: 'Poistu',
   look_and_feel: 'Kieli ja värit',
   language: 'Kieli',
-  color_scheme: 'Väriteema'
+  color_scheme: 'Väriteema',
+  extension_cost: 'Tämä julkaisu edellyttää vähintään {cost} satsin maksua.',
+  extension_paid_sats: 'Olet jo maksanut {paid_sats} satsia.',
+  release_details_error: 'Ei voi hakea julkaisun tietoja.',
+  pay_from_wallet: 'Maksa lompakosta',
+  show_qr: 'Näytä QR',
+  retry_install: 'Yritä asennusta uudelleen',
+  new_payment: 'Tee uusi maksu',
+  hide_empty_wallets: 'Piilota tyhjät lompakot'
 }

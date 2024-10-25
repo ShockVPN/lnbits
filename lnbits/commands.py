@@ -1,8 +1,9 @@
 import asyncio
+import importlib
+import time
 from functools import wraps
 from pathlib import Path
-from typing import Optional, Tuple
-from urllib.parse import urlparse
+from typing import List, Optional, Tuple
 
 import click
 import httpx
@@ -10,30 +11,33 @@ from fastapi.exceptions import HTTPException
 from loguru import logger
 from packaging import version
 
-from lnbits.core.models import User
-from lnbits.core.services import check_admin_settings
-from lnbits.core.views.api import api_install_extension, api_uninstall_extension
-from lnbits.settings import settings
-
-from .core import db as core_db
-from .core import migrations as core_migrations
-from .core.crud import (
+from lnbits.core import db as core_db
+from lnbits.core.crud import (
     delete_accounts_no_wallets,
     delete_unused_wallets,
+    delete_wallet_by_id,
+    delete_wallet_payment,
     get_dbversions,
-    get_inactive_extensions,
     get_installed_extension,
     get_installed_extensions,
+    get_payments,
     remove_deleted_wallets,
+    update_payment_status,
 )
-from .core.helpers import migrate_extension_database, run_migration
-from .db import COCKROACH, POSTGRES, SQLITE
-from .extension_manager import (
+from lnbits.core.extensions.models import (
     CreateExtension,
     ExtensionRelease,
     InstallableExtension,
-    get_valid_extensions,
 )
+from lnbits.core.helpers import is_valid_url, migrate_databases
+from lnbits.core.models import Payment, PaymentState
+from lnbits.core.services import check_admin_settings
+from lnbits.core.views.extension_api import (
+    api_install_extension,
+    api_uninstall_extension,
+)
+from lnbits.settings import settings
+from lnbits.wallets.base import Wallet
 
 
 def coro(f):
@@ -73,7 +77,7 @@ def get_super_user() -> Optional[str]:
             "Superuser id not found. Please check that the file "
             + f"'{superuser_file.absolute()}' exists and has read permissions."
         )
-    with open(superuser_file, "r") as file:
+    with open(superuser_file) as file:
         return file.readline()
 
 
@@ -113,46 +117,6 @@ def database_migrate():
     loop.run_until_complete(migrate_databases())
 
 
-async def db_migrate():
-    asyncio.create_task(migrate_databases())
-
-
-async def migrate_databases():
-    """Creates the necessary databases if they don't exist already; or migrates them."""
-
-    async with core_db.connect() as conn:
-        exists = False
-        if conn.type == SQLITE:
-            exists = await conn.fetchone(
-                "SELECT * FROM sqlite_master WHERE type='table' AND name='dbversions'"
-            )
-        elif conn.type in {POSTGRES, COCKROACH}:
-            exists = await conn.fetchone(
-                "SELECT * FROM information_schema.tables WHERE table_schema = 'public'"
-                " AND table_name = 'dbversions'"
-            )
-
-        if not exists:
-            await core_migrations.m000_create_migrations_table(conn)
-
-        current_versions = await get_dbversions(conn)
-        core_version = current_versions.get("core", 0)
-        await run_migration(conn, core_migrations, "core", core_version)
-
-    # here is the first place we can be sure that the
-    # `installed_extensions` table has been created
-    await load_disabled_extension_list()
-
-    for ext in get_valid_extensions(False):
-        current_version = current_versions.get(ext.code, 0)
-        try:
-            await migrate_extension_database(ext, current_version)
-        except Exception as e:
-            logger.exception(f"Error migrating extension {ext.code}: {e}")
-
-    logger.info("✔️ All migrations done.")
-
-
 @db.command("versions")
 @coro
 async def db_versions():
@@ -180,6 +144,39 @@ async def database_cleanup_deleted_wallets():
         await remove_deleted_wallets(conn)
 
 
+@db.command("delete-wallet")
+@click.option("-w", "--wallet", required=True, help="ID of wallet to be deleted.")
+@coro
+async def database_delete_wallet(wallet: str):
+    """Mark wallet as deleted"""
+    async with core_db.connect() as conn:
+        count = await delete_wallet_by_id(wallet_id=wallet, conn=conn)
+        click.echo(f"Marked as deleted '{count}' rows.")
+
+
+@db.command("delete-wallet-payment")
+@click.option("-w", "--wallet", required=True, help="ID of wallet to be deleted.")
+@click.option("-c", "--checking-id", required=True, help="Payment checking Id.")
+@coro
+async def database_delete_wallet_payment(wallet: str, checking_id: str):
+    """Delete wallet payment"""
+    async with core_db.connect() as conn:
+        await delete_wallet_payment(
+            wallet_id=wallet, checking_id=checking_id, conn=conn
+        )
+
+
+@db.command("mark-payment-pending")
+@click.option("-c", "--checking-id", required=True, help="Payment checking Id.")
+@coro
+async def database_revert_payment(checking_id: str):
+    """Mark payment as pending"""
+    async with core_db.connect() as conn:
+        await update_payment_status(
+            status=PaymentState.PENDING, checking_id=checking_id, conn=conn
+        )
+
+
 @db.command("cleanup-accounts")
 @click.argument("days", type=int, required=False)
 @coro
@@ -191,10 +188,84 @@ async def database_cleanup_accounts(days: Optional[int] = None):
         await delete_accounts_no_wallets(delta, conn)
 
 
-async def load_disabled_extension_list() -> None:
-    """Update list of extensions that have been explicitly disabled"""
-    inactive_extensions = await get_inactive_extensions()
-    settings.lnbits_deactivated_extensions += inactive_extensions
+@db.command("check-payments")
+@click.option("-d", "--days", help="Maximum age of payments in days.")
+@click.option("-l", "--limit", help="Maximum number of payments to be checked.")
+@click.option("-w", "--wallet", help="Only check for this wallet.")
+@click.option("-v", "--verbose", is_flag=True, help="Detailed log.")
+@coro
+async def check_invalid_payments(
+    days: Optional[int] = None,
+    limit: Optional[int] = None,
+    wallet: Optional[str] = None,
+    verbose: Optional[bool] = False,
+):
+    """Check payments that are settled in the DB but pending on the Funding Source"""
+    await check_admin_settings()
+    settled_db_payments = []
+
+    if verbose:
+        click.echo(f"Get Payments: days={days}, limit={limit}, wallet={wallet}")
+    async with core_db.connect() as conn:
+        delta = int(days) if days else 3  # default to 3 days
+        limit = int(limit) if limit else 1000
+        since = int(time.time()) - delta * 24 * 60 * 60
+
+        settled_db_payments = await get_payments(
+            complete=True,
+            incoming=True,
+            exclude_uncheckable=True,
+            since=since,
+            limit=limit,
+            wallet_id=wallet,
+            conn=conn,
+        )
+
+    click.echo("Settled Payments: " + str(len(settled_db_payments)))
+
+    wallets_module = importlib.import_module("lnbits.wallets")
+    wallet_class = getattr(wallets_module, settings.lnbits_backend_wallet_class)
+
+    funding_source: Wallet = wallet_class()
+
+    click.echo("Funding source: " + str(funding_source))
+
+    # payments that are settled in the DB, but not at the Funding source level
+    invalid_payments: List[Payment] = []
+    invalid_wallets = {}
+    for db_payment in settled_db_payments:
+        if verbose:
+            click.echo(
+                f"Checking Payment: '{db_payment.checking_id}' for wallet"
+                + f" '{db_payment.wallet_id}'."
+            )
+        payment_status = await funding_source.get_invoice_status(db_payment.checking_id)
+
+        if payment_status.pending:
+            invalid_payments.append(db_payment)
+            if db_payment.wallet_id not in invalid_wallets:
+                invalid_wallets[f"{db_payment.wallet_id}"] = [0, 0]
+            invalid_wallets[f"{db_payment.wallet_id}"][0] += 1
+            invalid_wallets[f"{db_payment.wallet_id}"][1] += db_payment.amount
+
+            click.echo(
+                "Invalid Payment:  '"
+                + " ".join(
+                    [
+                        db_payment.checking_id,
+                        db_payment.wallet_id,
+                        str(db_payment.amount / 1000).ljust(10),
+                        db_payment.memo or "",
+                    ]
+                )
+                + "'"
+            )
+
+    click.echo("Invalid Payments: " + str(len(invalid_payments)))
+    click.echo("\nInvalid Wallets: " + str(len(invalid_wallets)))
+    for w in invalid_wallets:
+        data = invalid_wallets[f"{w}"]
+        click.echo(" ".join([w, str(data[0]), str(data[1] / 1000).ljust(10)]))
 
 
 @extensions.command("list")
@@ -212,7 +283,7 @@ async def extensions_list():
 
 @extensions.command("update")
 @click.argument("extension", required=False)
-@click.option("-a", "--all", is_flag=True, help="Update all extensions.")
+@click.option("-a", "--all-extensions", is_flag=True, help="Update all extensions.")
 @click.option(
     "-i", "--repo-index", help="Select the index of the repository to be used."
 )
@@ -239,7 +310,7 @@ async def extensions_list():
 @coro
 async def extensions_update(
     extension: Optional[str] = None,
-    all: Optional[bool] = False,
+    all_extensions: Optional[bool] = False,
     repo_index: Optional[str] = None,
     source_repo: Optional[str] = None,
     url: Optional[str] = None,
@@ -249,14 +320,14 @@ async def extensions_update(
     Update extension to the latest version.
     If an extension is not present it will be instaled.
     """
-    if not extension and not all:
+    if not extension and not all_extensions:
         click.echo("Extension ID is required.")
-        click.echo("Or specify the '--all' flag to update all extensions")
+        click.echo("Or specify the '--all-extensions' flag to update all extensions")
         return
-    if extension and all:
+    if extension and all_extensions:
         click.echo("Only one of extension ID or the '--all' flag must be specified")
         return
-    if url and not _is_url(url):
+    if url and not is_valid_url(url):
         click.echo(f"Invalid '--url' option value: {url}")
         return
 
@@ -330,7 +401,7 @@ async def extensions_install(
 ):
     """Install a extension"""
     click.echo(f"Installing {extension}... {repo_index}")
-    if url and not _is_url(url):
+    if url and not is_valid_url(url):
         click.echo(f"Invalid '--url' option value: {url}")
         return
 
@@ -358,7 +429,7 @@ async def extensions_uninstall(
     """Uninstall a extension"""
     click.echo(f"Uninstalling '{extension}'...")
 
-    if url and not _is_url(url):
+    if url and not is_valid_url(url):
         click.echo(f"Invalid '--url' option value: {url}")
         return
 
@@ -371,7 +442,7 @@ async def extensions_uninstall(
         click.echo(f"Failed to uninstall '{extension}' Error: '{ex.detail}'.")
         return False, ex.detail
     except Exception as ex:
-        click.echo(f"Failed to uninstall '{extension}': {str(ex)}.")
+        click.echo(f"Failed to uninstall '{extension}': {ex!s}.")
         return False, str(ex)
 
 
@@ -409,7 +480,7 @@ async def install_extension(
         click.echo(f"Failed to install '{extension}' Error: '{ex.detail}'.")
         return False, ex.detail
     except Exception as ex:
-        click.echo(f"Failed to install '{extension}': {str(ex)}.")
+        click.echo(f"Failed to install '{extension}': {ex!s}.")
         return False, str(ex)
 
 
@@ -461,7 +532,7 @@ async def update_extension(
         click.echo(f"Failed to update '{extension}' Error: '{ex.detail}.")
         return False, ex.detail
     except Exception as ex:
-        click.echo(f"Failed to update '{extension}': {str(ex)}.")
+        click.echo(f"Failed to update '{extension}': {ex!s}.")
         return False, str(ex)
 
 
@@ -484,7 +555,7 @@ async def _select_release(
         return latest_repo_releases[source_repo]
 
     if len(latest_repo_releases) == 1:
-        return latest_repo_releases[list(latest_repo_releases.keys())[0]]
+        return latest_repo_releases[next(iter(latest_repo_releases.keys()))]
 
     repos = list(latest_repo_releases.keys())
     repos.sort()
@@ -539,7 +610,7 @@ async def _call_install_extension(
             )
             resp.raise_for_status()
     else:
-        await api_install_extension(data, User(id="mock_id"))
+        await api_install_extension(data)
 
 
 async def _call_uninstall_extension(
@@ -553,7 +624,7 @@ async def _call_uninstall_extension(
             )
             resp.raise_for_status()
     else:
-        await api_uninstall_extension(extension, User(id="mock_id"))
+        await api_uninstall_extension(extension)
 
 
 async def _can_run_operation(url) -> bool:
@@ -572,7 +643,7 @@ async def _can_run_operation(url) -> bool:
     elif url:
         click.echo(
             "The option '--url' has been provided,"
-            + f" but no server found runnint at '{url}'"
+            f" but no server found running at '{url}'"
         )
         return False
 
@@ -586,12 +657,4 @@ async def _is_lnbits_started(url: Optional[str]):
             await client.get(url)
             return True
     except Exception:
-        return False
-
-
-def _is_url(url):
-    try:
-        result = urlparse(url)
-        return all([result.scheme, result.netloc])
-    except ValueError:
         return False

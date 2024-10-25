@@ -23,7 +23,7 @@
             @remove="removeAdminUser(user)"
             color="primary"
             text-color="white"
-            v-text="user"
+            :label="user"
           >
           </q-chip>
         </div>
@@ -49,7 +49,7 @@
             @remove="removeAllowedUser(user)"
             color="primary"
             text-color="white"
-            v-text="user"
+            :label="user"
           >
           </q-chip>
         </div>
